@@ -1,0 +1,112 @@
+views:
+  - path: default_view
+    title: Home
+    cards:
+      - type: entities
+        entities:
+          - light.hue_essential_lamp_1
+          - light.hue_essential_table_lamp_1
+          - light.hue_smart_plug_1
+          - light.living_room3
+        title: Living room3
+      - type: entities
+        entities:
+          - person.jakeha3
+      - type: entities
+        entities:
+          - binary_sensor.lataussuunnitelma_muuttunut
+          - binary_sensor.lataussuunnitelma_muuttunut_v2
+        title: Binary sensor
+      - type: entities
+        entities:
+          - input_select.graafi_aikavali
+          - input_datetime.lataus_aloitettu_klo_v2
+          - input_number.lataus_kesto_jaksot_v2
+          - input_select.lataus_paiva_v2
+          - input_datetime.lataus_valmis_klo_v2
+          - input_datetime.lammitin_oletus_aloitus_v2
+          - input_number.lammitin_oletus_kesto_v2
+          - input_datetime.lammitin_oletus_lopetus_v2
+          - input_text.lataus_suunnitelman_jaksot_v2
+          - input_text.lataus_tehot_luonnos_v2
+          - input_text.lataus_tehot_luonnos_v2_part2
+          - input_text.valitut_jaksot_aktiivinen_v2
+          - input_text.valitut_jaksot_grid_v2
+          - input_text.valitut_jaksot_luonnos_v2
+          - input_text.valitut_jaksot_v2_part2
+          - input_boolean.lammitin_lisasetukset_v2
+          - input_number.lammitin_lisakuorma_v2
+          - input_datetime.lataus_alkaa_klo
+          - input_datetime.lataus_aloitettu_klo
+          - input_number.lataus_kesto_jaksot
+          - input_select.lataus_paiva
+          - input_datetime.lataus_valmis_klo
+          - input_datetime.sahkoauto_oletus_aloitus
+          - input_number.sahkoauto_oletus_kesto
+          - input_datetime.sahkoauto_oletus_lopetus
+          - input_text.lataus_suunnitelman_jaksot
+          - input_text.lataus_tehot_luonnos
+          - input_text.lataus_tehot_luonnos_part2
+          - input_text.valitut_jaksot_aktiivinen
+          - input_text.valitut_jaksot_grid
+          - input_text.valitut_jaksot_luonnos
+          - input_text.valitut_jaksot_part2
+          - input_boolean.sahkoauto_lisasetukset
+          - input_number.sahkoauto_lisakuorma
+          - input_number.simulaatio_vaihe_idx
+        title: Helpers
+      - type: grid
+        square: false
+        columns: 1
+        cards:
+          - type: media-control
+            entity: media_player.bedroom_tv
+          - type: media-control
+            entity: media_player.living_room_tv
+      - type: entities
+        entities:
+          - sensor.lammitin_saasto_kuluva_kuukausi
+          - sensor.lammitin_teho_laskettu
+          - sensor.lataus_suunnitelma
+          - sensor.lataus_suunnitelma_lammitin
+          - sensor.lataushistoria_lammitin_oikeat
+          - sensor.lataushistoria_lammitin_simulaatio
+          - sensor.lataushistoria_sahkoauto
+          - sensor.lataushistoria_sahkoauto_simulaatio
+          - sensor.nordpool_oma
+          - sensor.nordpool_oma_lammitin
+          - sensor.nordpool_yhdistetty_master
+          - sensor.nordpool_kwh_fi_eur_3_10_0255
+          - sensor.sahkoauto_saasto_kuluva_kuukausi
+          - sensor.sahkoauto_teho_laskettu
+          - sensor.valitut_jaksot_kpl
+          - sensor.valitut_jaksot_kpl_v2
+          - sensor.viimeisin_lammitin_lataus
+          - sensor.viimeisin_suoritettu_lataus
+          - sensor.wiz_kulutus_paivittainen
+          - sensor.wiz_kustannus_paivittainen
+          - sensor.wiz_lammitin_15min_keskiarvo
+          - sensor.wiz_pistoke_15min_keskiarvo
+        title: Sensor
+      - type: weather-forecast
+        entity: weather.forecast_home
+        show_forecast: false
+      - type: entities
+        entities:
+          - entity: sensor.sagemcom_f_st3896_download_speed
+            name: Download speed
+          - entity: sensor.sagemcom_f_st3896_upload_speed
+            name: Upload speed
+        title: Sagemcom F@st3896
+      - type: entities
+        entities:
+          - switch.wiz_socket_98d017
+          - entity: sensor.wiz_socket_98d017_power
+            name: Power
+        title: WiZ Socket 98D017
+      - type: entities
+        entities:
+          - switch.wiz_socket_900c4e
+          - entity: sensor.wiz_socket_900c4e_power
+            name: Power
+        title: WiZ Socket 900C4E

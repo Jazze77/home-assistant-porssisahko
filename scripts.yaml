@@ -1,0 +1,1175 @@
+toggle_jakso:
+  alias: "Vaihda jakson valintaa"
+  fields:
+    jakso_id:
+      description: "Jakson numero 0-95"
+      example: "5"
+  sequence:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_luonnos
+      data:
+        value: >
+          {% set nykyiset = states('input_text.valitut_jaksot_luonnos').split(',') | map('trim') | reject('eq', '') | list %}
+          {% set uusi = jakso_id | string %}
+          {% if uusi in nykyiset %}
+            {{ nykyiset | reject('eq', uusi) | join(',') }}
+          {% else %}
+            {{ (nykyiset + [uusi]) | join(',') }}
+          {% endif %}
+
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_grid
+      data:
+        value: >
+          {% set nykyiset = states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list %}
+          {% set uusi = jakso_id | string %}
+          {% if uusi in nykyiset %}
+            {{ nykyiset | reject('eq', uusi) | join(',') }}
+          {% else %}
+            {{ (nykyiset + [uusi]) | join(',') }}
+          {% endif %}
+          
+toggle_jakso_v2:
+  alias: "Vaihda jakson valintaa"
+  fields:
+    jakso_id:
+      description: "Jakson numero 0-95"
+      example: "5"
+  sequence:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_luonnos_v2
+      data:
+        value: >
+          {% set nykyiset = states('input_text.valitut_jaksot_luonnos_v2').split(',') | map('trim') | reject('eq', '') | list %}
+          {% set uusi = jakso_id | string %}
+          {% if uusi in nykyiset %}
+            {{ nykyiset | reject('eq', uusi) | join(',') }}
+          {% else %}
+            {{ (nykyiset + [uusi]) | join(',') }}
+          {% endif %}
+
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_grid_v2
+      data:
+        value: >
+          {% set nykyiset = states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | list %}
+          {% set uusi = jakso_id | string %}
+          {% if uusi in nykyiset %}
+            {{ nykyiset | reject('eq', uusi) | join(',') }}
+          {% else %}
+            {{ (nykyiset + [uusi]) | join(',') }}
+          {% endif %}   
+          
+toggle_jakso_grid:
+  alias: "Vaihda jakson valintaa"
+  fields:
+    jakso_id:
+      description: "Jakson numero 0-95"
+      example: "5"
+  sequence:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_grid
+      data:
+        value: >
+          {% set nykyiset = states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list %}
+          {% set uusi = jakso_id | string %}
+          {% if uusi in nykyiset %}
+            {{ nykyiset | reject('eq', uusi) | join(',') }}
+          {% else %}
+            {{ (nykyiset + [uusi]) | join(',') }}
+          {% endif %}         
+          
+toggle_jakso_grid_v2:
+  alias: "Vaihda jakson valintaa"
+  fields:
+    jakso_id:
+      description: "Jakson numero 0-95"
+      example: "5"
+  sequence:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_grid_v2
+      data:
+        value: >
+          {% set nykyiset = states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | list %}
+          {% set uusi = jakso_id | string %}
+          {% if uusi in nykyiset %}
+            {{ nykyiset | reject('eq', uusi) | join(',') }}
+          {% else %}
+            {{ (nykyiset + [uusi]) | join(',') }}
+          {% endif %}             
+          
+tyhjenna_kaikki_valinnat:
+  alias: "Tyhjennä kaikki valinnat"
+  sequence:
+    - action: input_text.set_value
+      target:
+        entity_id:
+          - input_text.valitut_jaksot_luonnos
+          - input_text.valitut_jaksot_grid
+          - input_text.valitut_jaksot_aktiivinen
+          - input_text.lataus_suunnitelman_jaksot
+      data:
+        value: ""
+    - action: input_number.set_value
+      target:
+        entity_id: input_number.lataus_kesto_jaksot
+      data:
+        value: 0
+    - action: system_log.write
+      data:
+        level: warning
+        logger: custom_components.lataus
+        message: "Sähköauto kaikki valinnat ja tehohistoria tyhjennetty."        
+
+tyhjenna_kaikki_valinnat_v2:
+  alias: "Lämmitin: Tyhjennä kaikki valinnat"
+  sequence:
+    - action: input_text.set_value
+      target:
+        entity_id:
+          - input_text.valitut_jaksot_luonnos_v2
+          - input_text.valitut_jaksot_grid_v2
+          - input_text.valitut_jaksot_aktiivinen_v2
+          - input_text.lataus_suunnitelman_jaksot_v2
+          - input_text.lataus_tehot_luonnos_v2
+      data:
+        value: ""
+    - action: input_number.set_value
+      target:
+        entity_id: input_number.lataus_kesto_jaksot_v2
+      data:
+        value: 0
+    - action: system_log.write
+      data:
+        level: warning
+        logger: custom_components.lataus_v2
+        message: "Lämmittimen kaikki valinnat ja tehohistoria tyhjennetty."
+
+
+        
+esitayta_halvimmat:
+  alias: "Valitse 12 halvinta tästä hetkestä eteenpäin"
+  sequence:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_luonnos
+      data:
+        value: >
+          {% set hinnat = state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') %}
+          {% set current_org = (now().hour * 4) + (now().minute // 15) %}
+          
+          {% if hinnat is iterable and hinnat | length > 0 %}
+            {# 1. Otetaan vain tulevat jaksot #}
+            {% set tulevat = hinnat | selectattr('org', 'ge', current_org) | list %}
+            
+            {# 2. Järjestetään ne hinnan (val) mukaan halvimmasta alkaen #}
+            {% set halvimmat_tulevat = tulevat | sort(attribute='val') %}
+            
+            {# 3. Otetaan 12 ensimmäistä (eli halvinta) ja järjestetään ne ajallisesti (org) #}
+            {{ halvimmat_tulevat[:(states('input_number.lataus_kesto_jaksot') | int(12))] | map(attribute='org') | sort | join(',') }}
+          {% else %}
+            {{ states('input_text.valitut_jaksot_luonnos') }}
+          {% endif %}
+
+tallenna_valinnat_ei:
+  alias: "Tallenna ja ota käyttöön"
+  sequence:
+    - variables:
+        luonnos_raw: "{{ states('input_text.valitut_jaksot_luonnos').split(',') | map('trim') | reject('eq', '') | list }}"
+        grid_raw: "{{ states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list }}"
+        kaikki_ehdotetut: "{{ (luonnos_raw + grid_raw) | map('int') | unique | list }}"
+        hinnat: "{{ state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') }}"
+        
+        # 1. Lasketaan käyttäjän valitsema aloitus-indeksi
+        valittu_aloitus_osat: "{{ states('input_datetime.lataus_alkaa_klo').split(':') }}"
+        valittu_aloitus_idx: "{{ (valittu_aloitus_osat[0]|int(0) * 4) + (valittu_aloitus_osat[1]|int(0) // 15) }}"
+        
+        # 2. Lasketaan reaaliaikainen kuluva jaksoindeksi juuri nyt
+        reaaliaikainen_nyt_idx: "{{ (now().hour * 4) + (now().minute // 15) }}"
+        
+        # KORJAUS: Alarajaksi valitaan suurin näistä kahdesta (kumpi on myöhemmin)
+        alku_idx: "{{ [valittu_aloitus_idx|int, reaaliaikainen_nyt_idx|int] | max }}"
+        
+        # 3. Lasketaan valittu takaraja-indeksi (YLÄRAJA)
+        loppu_osat: "{{ states('input_datetime.lataus_valmis_klo').split(':') }}"
+        base_loppu: "{{ (loppu_osat[0]|int(0) * 4) + (loppu_osat[1]|int(0) // 15) }}"
+        loppu_idx: "{{ base_loppu | int + 96 if states('input_select.lataus_paiva') == 'Huomenna' else base_loppu | int }}"
+
+        # Suodatetaan aktiiviset uuden dynaamisen ALARAJAN mukaan
+        aktiiviset: >-
+          {% set ns = namespace(uudet=[]) %}
+          {% for j in kaikki_ehdotetut %}
+            {% if j >= alku_idx | int and j <= loppu_idx | int %}{% set ns.uudet = ns.uudet + [j] %}{% endif %}
+          {% endfor %}
+          {{ ns.uudet | sort | list }}
+
+        # Suodatetaan myös grid-ruudukko siistiksi
+        grid_siivottu: >-
+          {% set ns = namespace(uudet=[]) %}
+          {% for j in grid_raw %}
+            {% if j | int >= alku_idx | int and j | int <= loppu_idx | int %}{% set ns.uudet = ns.uudet + [j] %}{% endif %}
+          {% endfor %}
+          {{ ns.uudet | join(',') }}
+
+        valmis_klo_naytto: >-
+          {% set h = loppu_osat[0]|int %}
+          {% set m = loppu_osat[1]|int + 14 %}
+          {% if m >= 60 %}{% set m = m - 60 %}{% set h = h + 1 %}{% endif %}
+          {% if h >= 24 %}{% set h = 0 %}{% endif %}
+          {{ "%02d:%02d:59" | format(h, m) }}
+
+        valmis_pvm: >-
+          {% set d = now() %}
+          {% if states('input_select.lataus_paiva') == 'Huomenna' %}{% set d = d + timedelta(days=1) %}{% endif %}
+          {{ d.strftime('%d.%m.%Y') }}
+
+        kooste: >-
+          {% set ns = namespace(items=[]) %}
+          {% set st = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+          {% for j in aktiiviset %}
+            {% set h_data = hinnat | selectattr('org', 'eq', j) | first | default(none) %}
+            {% set hinta = h_data.val if h_data is mapping else 0 %}
+            {% set alku = st + timedelta(minutes=(j * 15)) %}
+            {% set rivi = (loop.index | string) + ". " + alku.strftime('%d.%m.%Y %H:%M:%S') + "; " + (hinta | round(3) | string | replace('.',',')) + " snt" %}
+            {% set ns.items = ns.items + [ rivi ] %}
+          {% endfor %}
+          {{ ns.items | join('\n') }}
+
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_grid
+      data:
+        value: "{{ grid_siivottu }}"
+
+    - action: input_text.set_value
+      target:
+        entity_id: 
+          - input_text.valitut_jaksot_aktiivinen
+          - input_text.lataus_suunnitelman_jaksot
+      data:
+        value: "{{ aktiiviset | join(',') }}"
+
+    - action: persistent_notification.create
+      data:
+        title: "✅ Ohjaus tallennettu ({{ now().strftime('%d.%m.%Y klo %H:%M:%S') }})"
+        message: >-
+          Valittu **{{ aktiiviset | length }}** jaksoa. Yhteensä latausaika **{{ (aktiiviset|length * 15) // 60 }}h {{ (aktiiviset|length * 15) % 60 }} min**.
+          
+          Lataus valmistuu: **{{ valmis_pvm }} {{ valmis_klo_naytto }}**
+
+          **Käytössä olevat ajat:**
+          
+          {{ kooste }}
+        notification_id: "ohjaus_paivitetty"
+
+
+tallenna_valinnat:
+  alias: "Tallenna ja ota käyttöön"
+  sequence:
+    - variables:
+        luonnos_raw: "{{ states('input_text.valitut_jaksot_luonnos').split(',') | map('trim') | reject('eq', '') | list }}"
+        grid_raw: "{{ states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list }}"
+        kaikki_ehdotetut: "{{ (luonnos_raw + grid_raw) | map('int') | unique | list }}"
+        hinnat: "{{ state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') }}"
+        
+        # 1. KORJAUS: Lasketaan käyttäjän valitsema aloitus-indeksi (ALARAJA)
+        alku_idx: >-
+          {% set t_osat = states('input_datetime.lataus_alkaa_klo').split(':') %}
+          {% set h = t_osat[0] | int(0) %}{% set m = t_osat[1] | int(0) %}
+          {{ (h * 4) + (m // 15) }}
+        
+        # 2. Lasketaan valittu takaraja-indeksi (YLÄRAJA)
+        loppu_idx: >-
+          {% set t_osat = states('input_datetime.lataus_valmis_klo').split(':') %}
+          {% set h = t_osat[0] | int(0) %}{% set m = t_osat[1] | int(0) %}
+          {% set base = (h * 4) + (m // 15) %}
+          {{ base + 96 if states('input_select.lataus_paiva') == 'Huomenna' else base }}
+
+        # 3. Suodatetaan jaksot uuden käyttäjän ALARAJAN ja YLÄRAJAN välille
+        aktiiviset: >-
+          {% set ns = namespace(uudet=[]) %}
+          {% for j in kaikki_ehdotetut %}
+            {% if j >= alku_idx | int and j <= loppu_idx | int %}{% set ns.uudet = ns.uudet + [j] %}{% endif %}
+          {% endfor %}
+          {{ ns.uudet | sort | list }}
+
+        # 4. Suodatetaan myös grid-ruudukko siistiksi molemmin puolin
+        grid_siivottu: >-
+          {% set ns = namespace(uudet=[]) %}
+          {% for j in grid_raw %}
+            {% if j | int >= alku_idx | int and j | int <= loppu_idx | int %}{% set ns.uudet = ns.uudet + [j] %}{% endif %}
+          {% endfor %}
+          {{ ns.uudet | join(',') }}
+
+        valmis_klo_naytto: >-
+          {% set t_osat = states('input_datetime.lataus_valmis_klo').split(':') %}
+          {% set h = t_osat[0] | int %}
+          {% set m = t_osat[1] | int + 14 %}
+          {% if m >= 60 %}{% set m = m - 60 %}{% set h = h + 1 %}{% endif %}
+          {% if h >= 24 %}{% set h = 0 %}{% endif %}
+          {{ "%02d:%02d:59" | format(h, m) }}
+
+        valmis_pvm: >-
+          {% set d = now() %}
+          {% if states('input_select.lataus_paiva') == 'Huomenna' %}{% set d = d + timedelta(days=1) %}{% endif %}
+          {{ d.strftime('%d.%m.%Y') }}
+
+        kooste: >-
+          {% set ns = namespace(items=[]) %}
+          {% set st = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+          {% for j in aktiiviset %}
+            {% set h_data = hinnat | selectattr('org', 'eq', j) | first | default(none) %}
+            {% set hinta = h_data.val if h_data is mapping else 0 %}
+            {% set alku = st + timedelta(minutes=(j * 15)) %}
+            {% set rivi = (loop.index | string) + ". " + alku.strftime('%d.%m.%Y %H:%M:%S') + "; " + (hinta | round(3) | string | replace('.',',')) + " snt" %}
+            {% set ns.items = ns.items + [ rivi ] %}
+          {% endfor %}
+          {{ ns.items | join('\n') }}
+
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_grid
+      data:
+        value: "{{ grid_siivottu }}"
+
+    - action: input_text.set_value
+      target:
+        entity_id: 
+          - input_text.valitut_jaksot_aktiivinen
+          - input_text.lataus_suunnitelman_jaksot
+      data:
+        value: "{{ aktiiviset | join(',') }}"
+
+    - action: persistent_notification.create
+      data:
+        title: "✅ Ohjaus tallennettu ({{ now().strftime('%d.%m.%Y klo %H:%M:%S') }})"
+        message: >-
+          Valittu **{{ aktiiviset | length }}** jaksoa. Yhteensä latausaika **{{ (aktiiviset|length * 15) // 60 }}h {{ (aktiiviset|length * 15) % 60 }} min**.
+          
+          Lataus valmistuu: **{{ valmis_pvm }} {{ valmis_klo_naytto }}**
+
+          **Käytössä olevat ajat:**
+          
+          {{ kooste }}
+        notification_id: "ohjaus_paivitetty"
+
+
+
+tallenna_valinnat_v2:
+  alias: "Lämmitin: Tallenna ja ota käyttöön"
+  sequence:
+    - variables:
+        luonnos_raw: "{{ states('input_text.valitut_jaksot_luonnos_v2').split(',') | map('trim') | reject('eq', '') | list }}"
+        grid_raw: "{{ states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | list }}"
+        kaikki_ehdotetut: "{{ (luonnos_raw + grid_raw) | map('int') | unique | list }}"
+        hinnat: "{{ state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') }}"
+        
+        # 1. Lasketaan kuluva jaksoindeksi v2 (ALARAJA)
+        alku_idx: "{{ (now().hour * 4) + (now().minute // 15) }}"
+        
+        # 2. Lasketaan loppuindeksi v2 (YLÄRAJA)
+        loppu_idx: >-
+          {% set t_osat = states('input_datetime.lataus_valmis_klo_v2').split(':') %}
+          {% set h = t_osat[0] | int(0) %}{% set m = t_osat[1] | int(0) %}
+          {% set base = (h * 4) + (m // 15) %}
+          {{ base + 96 if states('input_select.lataus_paiva_v2') == 'Huomenna' else base }}
+
+        # 3. KORJAUS: Suodatetaan Lämmittimen jaksot molempien rajojen mukaan
+        aktiiviset: >-
+          {% set ns = namespace(uudet=[]) %}
+          {% for j in kaikki_ehdotetut %}
+            {% if j >= alku_idx | int and j <= loppu_idx | int %}{% set ns.uudet = ns.uudet + [j] %}{% endif %}
+          {% endfor %}
+          {{ ns.uudet | sort | list }}
+
+        # 4. KORJAUS: Suodatetaan myös Lämmittimen grid-ruudukko
+        grid_siivottu_v2: >-
+          {% set ns = namespace(uudet=[]) %}
+          {% for j in grid_raw %}
+            {% if j | int >= alku_idx | int and j | int <= loppu_idx | int %}{% set ns.uudet = ns.uudet + [j] %}{% endif %}
+          {% endfor %}
+          {{ ns.uudet | join(',') }}
+
+        valmis_klo_naytto: >-
+          {% set t_osat = states('input_datetime.lataus_valmis_klo_v2').split(':') %}
+          {% set h = t_osat[0] | int %}{% set m = t_osat[1] | int + 14 %}
+          {% if m >= 60 %}{% set m = m - 60 %}{% set h = h + 1 %}{% endif %}
+          {% if h >= 24 %}{% set h = 0 %}{% endif %}
+          {{ "%02d:%02d:59" | format(h, m) }}
+
+        valmis_pvm: >-
+          {% set d = now() %}
+          {% if states('input_select.lataus_paiva_v2') == 'Huomenna' %}{% set d = d + timedelta(days=1) %}{% endif %}
+          {{ d.strftime('%d.%m.%Y') }}
+
+        kooste: >-
+          {% set ns = namespace(items=[]) %}
+          {% set st = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+          {% for j in aktiiviset %}
+            {% set h_data = hinnat | selectattr('org', 'eq', j) | first | default(none) %}
+            {% set hinta = h_data.val if h_data is mapping else 0 %}
+            {% set alku = st + timedelta(minutes=(j * 15)) %}
+            {% set rivi = (loop.index | string) + ". " + alku.strftime('%d.%m.%Y %H:%M:%S') + "; " + (hinta | round(3) | string | replace('.',',')) + " snt" %}
+            {% set ns.items = ns.items + [ rivi ] %}
+          {% endfor %}
+          {{ ns.items | join('\n') }}
+
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_grid_v2
+      data:
+        value: "{{ grid_siivottu_v2 }}"
+
+    - action: input_text.set_value
+      target:
+        entity_id: 
+          - input_text.valitut_jaksot_aktiivinen_v2
+          - input_text.lataus_suunnitelman_jaksot_v2
+      data:
+        value: "{{ aktiiviset | join(',') }}"
+
+    - action: persistent_notification.create
+      data:
+        title: "✅ Lämmittimen ohjaus tallennettu ({{ now().strftime('%d.%m.%Y klo %H:%M:%S') }})"
+        message: >-
+          Valittu **{{ aktiiviset | length }}** jaksoa. Yhteensä latausaika **{{ (aktiiviset|length * 15) // 60 }}h {{ (aktiiviset|length * 15) % 60 }} min**.
+          
+          Lataus valmistuu: **{{ valmis_pvm }} {{ valmis_klo_naytto }}**
+
+          **Käytössä olevat ajat:**
+          
+          {{ kooste }}
+        notification_id: "ohjaus_paivitetty_v2"
+
+
+kaynnista_simulaatio:
+  alias: "Käynnistä Simulaatio Ketju"
+  sequence:
+    # 1. Tallentaa luonnoksen aktiiviseksi ja antaa ensimmäisen raportin
+    - action: script.tallenna_valinnat2
+    # 2. Käynnistää lampun vilkutuksen (automaatio sammuttaa itsensä lopuksi)
+    - action: automation.turn_on
+      target:
+        entity_id: automation.latauksen_simulaatio_v1_2
+  mode: single
+
+kaynnista_simulaatio_lammitin:
+  alias: "Lämmitin: Käynnistä simulaatio"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_aloitettu_klo_v2
+      data:
+        datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+    - action: automation.turn_on
+      target:
+        entity_id: automation.latauksen_simulaatio_lammitin
+
+keskeyta_simulaatio_lammitin:
+  alias: "Lämmitin: Keskeytä simulaatio"
+  sequence:
+    - action: automation.turn_off
+      target:
+        entity_id: automation.latauksen_simulaatio_lammitin
+    - action: light.turn_off
+      target:
+        entity_id: light.hue_essential_lamp_1_2
+    - action: persistent_notification.create
+      data:
+        title: "⚠️ Lämmitin: Simulaatio keskeytetty"
+        message: "Simulaatio pysäytetty manuaalisesti."
+
+
+simulaatio_valmis:
+  alias: "Simulaatio valmis -raportti"
+  sequence:
+    - variables:
+        jakso_lista: >-
+          {% set raw = states('input_text.valitut_jaksot_aktiivinen').split(',') | map('trim') | reject('eq', '') | map('int') | sort | list %}
+          {{ raw }}
+        hinnat: "{{ state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') }}"
+        jakson_kulutus_kwh: 0.5 
+        teho_kw: 2.0
+        maara: "{{ jakso_lista | length }}"
+        yhteensa_kwh: "{{ (maara | int * jakson_kulutus_kwh) | round(2) }}"
+        yhteensa_min: "{{ maara * 15 }}"
+        kesto_h: "{{ yhteensa_min // 60 }}"
+        kesto_min: "{{ yhteensa_min % 60 }}"
+        
+        kello_lista_data: >-
+          {% set ns = namespace(items=[], total_snt=0) %}
+          {% set tänään = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+          {% for j in jakso_lista %}
+            {% set h_data = hinnat | selectattr('org', 'eq', j) | first | default(none) %}
+            {% set hinta = h_data.val if h_data is mapping else 0 %}
+            {% set ns.total_snt = ns.total_snt + (hinta * jakson_kulutus_kwh) %}
+            {% set alku = tänään + timedelta(minutes=j*15) %}
+            {% set rivi = (loop.index | string) ~ ") " ~ alku.strftime('%d.%m.%Y %H:%M:%S') ~ "; " ~ (hinta | round(3) | string).replace('.',',') ~ " snt ; " ~ (teho_kw | round(1) | string).replace('.',',') ~ "kW" %}
+            {% set ns.items = ns.items + [ rivi ] %}
+          {% endfor %}
+          {{ {'lista': ns.items | join('\n'), 'eurot': (ns.total_snt / 100) | round(2)} }}
+
+    - action: persistent_notification.create
+      data:
+        title: "✅ Latausvalmis ({{ now().strftime('%d.%m.%Y klo %H:%M:%S') }})"
+        message: >
+          Valittu **{{ maara }}** jaksoa. **{{ kesto_h }}h {{ kesto_min }} min**.
+
+          Yhteensä: **{{ yhteensa_kwh | string | replace('.',',') }} kWh** | **{{ kello_lista_data.eurot | string | replace('.',',') }} €**
+          
+          **Käytössä olevat ajat:**
+          
+          {{ kello_lista_data.lista }}
+        notification_id: "simulaatio_raportti"
+
+keskeyta_simulaatio:
+  alias: "Keskeytä simulaatio ja raportoi"
+  sequence:
+    - variables:
+        # Haetaan perustiedot ja varmistetaan numerotyypit
+        v_idx: "{{ states('input_number.simulaatio_vaihe_idx') | int(0) }}"
+        aktiiviset: "{{ states('input_text.valitut_jaksot_aktiivinen').split(',') | map('trim') | reject('eq', '') | map('int') | list }}"
+        hinnat: "{{ state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') }}"
+        kwh_per_jakso: 0.5
+        
+        # 1. LADATUT JAKSOT: Lasketaan teksti ja eurot samalla kertaa
+        ladatut_kooste: >-
+          {% set jaksot = aktiiviset | select('le', v_idx) | list %}
+          {% set ns = namespace(txt=[], snt=0) %}
+          {% set st = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+          {% for j in jaksot %}
+            {% set h_data = hinnat | selectattr('org', 'eq', j) | first | default(none) %}
+            {% set hinta = h_data.val if h_data is mapping else 0 %}
+            {% set ns.snt = ns.snt + (hinta * 0.5) %}
+            {% set alku = st + timedelta(minutes=(j * 15)) %}
+            {% set rivi = (loop.index | string) ~ ") " ~ alku.strftime('%d.%m.%Y %H:%M:%S') ~ "; " ~ (hinta | round(3) | string | replace('.',',')) ~ " snt ; 2,0kW" %}
+            {% set ns.txt = ns.txt + [rivi] %}
+          {% endfor %}
+          {{ {'lista': ns.txt | join('\n'), 'eurot': (ns.snt / 100) | round(3), 'kpl': jaksot | length} | to_json }}
+
+        # 2. JÄÄNEET JAKSOT: Lasketaan vain teksti
+        jaaneet_kooste: >-
+          {% set jaksot = aktiiviset | select('gt', v_idx) | list %}
+          {% set ns = namespace(txt=[]) %}
+          {% set st = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+          {% for j in jaksot %}
+            {% set h_data = hinnat | selectattr('org', 'eq', j) | first | default(none) %}
+            {% set hinta = h_data.val if h_data is mapping else 0 %}
+            {% set alku = st + timedelta(minutes=(j * 15)) %}
+            {% set rivi = (loop.index | string) ~ ") " ~ alku.strftime('%d.%m.%Y %H:%M:%S') ~ "; " ~ (hinta | round(3) | string | replace('.',',')) ~ " snt ; 2,0kW" %}
+            {% set ns.txt = ns.txt + [rivi] %}
+          {% endfor %}
+          {{ {'lista': ns.txt | join('\n'), 'kpl': jaksot | length} | to_json }}
+
+    - action: automation.turn_off
+      target:
+        entity_id: automation.latauksen_simulaatio_v1_2
+    - action: light.turn_off
+      target:
+        entity_id: light.hue_essential_lamp_1_2
+
+    - action: persistent_notification.create
+      data:
+        title: "⚠️ Lataus keskeytetty ({{ now().strftime('%d.%m.%Y klo %H:%M:%S') }})"
+        message: >-
+          {% set l = ladatut_kooste | from_json %}
+          {% set j = jaaneet_kooste | from_json %}
+          {% set kpl_yht = l.kpl + j.kpl %}
+          
+          Ladattu **{{ l.kpl }}/{{ kpl_yht }}** jaksoa. 
+          (**{{ l.kpl * 15 }}min** / **{{ kpl_yht * 15 }}min**).
+            
+          Yhteensä: **{{ (l.kpl * 0.5) | string | replace('.',',') }} kWh** | **{{ l.eurot | string | replace('.',',') }} €**
+            
+          **Käytössä olleet jaksot:**
+          {{ l.lista }}
+          
+          **Lataamatta jääneet jaksot:**
+          {{ j.lista }}
+            
+          Lataus keskeytetty manuaalisesti.
+        notification_id: "simulaatio_keskeytys_raportti"
+
+keskeyta_simulaatio_simple:
+  alias: "Keskeytä simulaatio ja raportoi"
+  sequence:
+    - action: automation.turn_off
+      target:
+        entity_id: automation.latauksen_simulaatio_v1_2
+    - action: light.turn_off
+      target:
+        entity_id: light.hue_essential_lamp_1_2
+
+    - action: persistent_notification.create
+      data:
+        title: "⚠️ Simulaatio keskeytetty"
+        message: >
+          {% set suunnitelma = state_attr('sensor.lataus_suunnitelma', 'jaksot') %}
+          {% set vaihe_kpl = states('sensor.lataus_suunnitelma') | int(0) %}
+          {% set ns = namespace(items=[], snt=0, kwh=0) %}
+          
+          {% for p in suunnitelma %}
+            {% set i = loop.index0 %}
+            {% if i < vaihe_kpl %}
+              {% set teho_w = p.teho | float(0) %}
+              {% set jakso_kwh = (teho_w / 1000) * 0.25 %}
+              {% if p.ladataanko == 'KYLLÄ' %}
+                {% set ns.snt = ns.snt + (p.hinta * jakso_kwh) %}
+                {% set ns.kwh = ns.kwh + jakso_kwh %}
+                {% set status = (teho_w | round(0) | string) ~ " W" %}
+              {% else %}
+                {% set status = "0 W" %}
+              {% endif %}
+            {% elif i == vaihe_kpl %}
+              {% set status = "⚠️ KESKEYTYS" %}
+            {% else %}
+              {% set status = "EI LADATTU" %}
+            {% endif %}
+            {% set ns.items = ns.items + [ (loop.index | string) + ". " + p.aloitus + "; " + (p.hinta | round(3) | string | replace('.',',')) + " snt ; " + status ] %}
+          {% endfor %}
+
+          Simulaatio keskeytetty: **{{ now().strftime('%H:%M:%S') }}**.
+          
+          Suunnitellusta ladattu: **{{ ns.kwh | round(2) | string | replace('.',',') }} kWh**.
+
+          **Toteutuma keskeytykseen asti:**
+          
+          {{ ns.items | join('\n') }}
+        notification_id: "simulaatio_keskeytys_raportti"
+
+
+
+
+
+
+
+
+
+muuta_latauskestoa_tunnit:
+  alias: "Muuta latauskestoa tunneilla"
+  sequence:
+    - service: input_number.set_value
+      target:
+        entity_id: input_number.lataus_kesto_jaksot
+      data:
+        value: >
+          {% set nykyinen = states('input_number.lataus_kesto_jaksot') | int %}
+          {% set uusi = nykyinen + (muutos * 4) %}
+          {{ [[0, uusi] | max, 96] | min }}
+
+muuta_latauskestoa_minuutit:
+  alias: "Muuta latauskestoa minuuteilla"
+  sequence:
+    - service: input_number.set_value
+      target:
+        entity_id: input_number.lataus_kesto_jaksot
+      data:
+        value: >
+          {% set nykyinen = states('input_number.lataus_kesto_jaksot') | int %}
+          {% set uusi = nykyinen + (muutos // 15) %}
+          {{ [[0, uusi] | max, 96] | min }}
+
+muuta_lataus_valmis_tunnit:
+  alias: "Muuta latausaikaa tunneilla"
+  sequence:
+    - service: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_valmis_klo
+      data:
+        time: >
+          {% set t = (state_attr('input_datetime.lataus_valmis_klo', 'hour') + muutos) % 24 %}
+          {% set m = state_attr('input_datetime.lataus_valmis_klo', 'minute') %}
+          {{ "%02d:%02d:00" | format(t, m) }}
+
+muuta_lataus_valmis_minuutit:
+  alias: "Muuta latausaikaa minuuteilla"
+  sequence:
+    - service: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_valmis_klo
+      data:
+        time: >
+          {% set t = state_attr('input_datetime.lataus_valmis_klo', 'hour') %}
+          {% set m = (state_attr('input_datetime.lataus_valmis_klo', 'minute') + muutos) % 60 %}
+          {{ "%02d:%02d:00" | format(t, m) }}
+          
+
+keskeyta_lataus:
+  alias: "Keskeytä lataus ja raportoi"
+  sequence:
+    # 1. Pysäytetään toiminnot välittömästi
+    - action: automation.turn_off
+      target:
+        entity_id: automation.reaaliaikainen_lataus_v1_1
+    - action: switch.turn_off
+      target:
+        entity_id: switch.wiz_socket_900c4e
+    - action: light.turn_off
+      target:
+        entity_id: light.hue_essential_lamp_1_2
+
+    # 2. Luodaan raportti lukitun suunnitelman pohjalta
+    - action: persistent_notification.create
+      data:
+        title: "⚠️ Lataus keskeytetty"
+        message: >
+          {% set suunnitelma = state_attr('sensor.lataus_suunnitelma', 'jaksot') %}
+          {% set vaihe_kpl = states('sensor.lataus_suunnitelma') | int(0) %}
+          {% set tallennettu = state_attr('sensor.lataus_suunnitelma', 'tallennus_aika') %}
+          {% set ns = namespace(items=[], snt=0, kwh=0) %}
+          
+          {% for p in suunnitelma %}
+            {% set i = loop.index0 %}
+            {% if i < vaihe_kpl %}
+              {# Jakso suoritettiin ennen keskeytystä #}
+              {% set teho_w = p.teho | float(0) %}
+              {% set jakso_kwh = (teho_w / 1000) * 0.25 %}
+              {% if p.ladataanko == 'KYLLÄ' %}
+                {% set ns.snt = ns.snt + (p.hinta * jakso_kwh) %}
+                {% set ns.kwh = ns.kwh + jakso_kwh %}
+                {% set status = (teho_w | round(0) | string) ~ " W" %}
+              {% else %}
+                {% set status = "0 W" %}
+              {% endif %}
+            {% elif i == vaihe_kpl %}
+              {# Jakso, jonka aikana keskeytys tapahtui #}
+              {% set status = "⚠️ KESKEYTYS" %}
+            {% else %}
+              {# Tulevat jaksot #}
+              {% set status = "EI LADATTU" %}
+            {% endif %}
+            
+            {% set rivi = (loop.index | string) + ". " + p.aloitus + "; " + (p.hinta | round(3) | string | replace('.',',')) + " snt ; " + status %}
+            {% set ns.items = ns.items + [ rivi ] %}
+          {% endfor %}
+
+          Lataus keskeytetty manuaalisesti hetkellä: **{{ now().strftime('%d.%m.%Y klo %H:%M:%S') }}**.
+          
+          Ladattu ennen keskeytystä: **{{ ns.kwh | round(2) | string | replace('.',',') }} kWh** | **{{ (ns.snt / 100) | round(2) | string | replace('.',',') }} €**
+
+          **Toteutuma keskeytykseen asti:**
+          
+          {{ ns.items | join('\n') }}
+        notification_id: "lataus_keskeytys_raportti"
+
+          
+# =================================================================
+# SÄHKÖAUTO (v1) - RAPORTTI JA KÄNNYKKÄILMOITUS
+# =================================================================
+lataus_valmis:
+  alias: "Sähköauto: Lataus valmis -raportti ja tyhjennys"
+  sequence:
+    - variables:
+        suunnitelma: "{{ state_attr('sensor.lataus_suunnitelma', 'jaksot') }}"
+        teho_parit: >-
+          {% set t1 = states('input_text.lataus_tehot_luonnos') | replace(',*', '') | replace('*', '') %}
+          {% set t2 = states('input_text.lataus_tehot_luonnos_part2') %}
+          {% set koko_teksti = t1 if t2 == "" else t1 ~ "," ~ t2 %}
+          {% set raw = koko_teksti.split(',') | map('trim') | reject('eq', '') | list %}
+          {% set ns = namespace(lista=[]) %}
+          {% for p in raw %}
+            {% set osat = p.split(':') %}
+            {% if osat | length == 2 %}
+              {% set ns.lista = ns.lista + [[osat[0] | int, osat[1] | float(0)]] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.lista }}
+        
+        raportti_teksti: >-
+          {% set ns = namespace(items=[], snt=0, kwh=0, t_idx=1) %}
+          {% for p in suunnitelma %}
+            {% set haku = teho_parit | selectattr('0', 'eq', p.idx | int) | first | default(none) %}
+            {% set t_w = haku[1] | float(0) if haku is not none and haku | length == 2 else 0 %}
+            {% set j_kwh = (t_w / 1000) * 0.25 %}
+            {% if p.ladataanko == 'KYLLÄ' %}
+              {% set ns.snt = ns.snt + (p.hinta * j_kwh) %}
+              {% set ns.kwh = ns.kwh + j_kwh %}
+              {% set status = (t_w | round(0) | string) ~ " W" %}
+            {% else %}
+              {% set status = "EI LADATA" %}
+            {% endif %}
+            {% set ns.items = ns.items + [ (ns.t_idx | string) + ". " + p.aloitus + "; " + (p.hinta | round(3) | string | replace('.',',')) + " snt ; " + status ] %}
+            {% set ns.t_idx = ns.t_idx + 1 %}
+          {% endfor %}
+          Lataus päättynyt.
+          Yhteensä: **{{ ns.kwh | round(2) | string | replace('.',',') }} kWh** | **{{ (ns.snt / 100) | round(2) | string | replace('.',',') }} €**
+
+          **Suoritetut jaksot:**
+          {{ ns.items | join('\n') }}
+
+    - action: persistent_notification.create
+      data:
+        title: "🔋 Sähköauto: Lataus valmis ({{ now().strftime('%d.%m.%Y klo %H:%M:%S') }})"
+        message: "{{ raportti_teksti }}"
+        notification_id: "lataus_valmis_raportti"
+
+    # --- KORJATTU PUSH-ILMOITUS JAKE ONEPLUS ---
+    #- action: notify.mobile_app_jake_oneplus
+    #  data:
+    #    title: "🚗 Sähköauto: Lataus valmis!"
+    #    # KORJAUS: Otetaan suoraan valmiista tekstistä se Yhteensä-rivi purettuna siistiksi
+    #    message: "{{ raportti_teksti.split('Lataus päättynyt.')[1].split('**Suoritetut jaksot:**')[0] | replace('**', '') | trim }}"
+    #    data:
+    #      tag: "lataus-valmis"
+    #      ttl: 0
+    #      priority: high
+
+    - action: input_text.set_value
+      target:
+        entity_id:
+          - input_text.valitut_jaksot_luonnos
+          - input_text.valitut_jaksot_grid
+          - input_text.valitut_jaksot_aktiivinen
+      data:
+        value: ""
+
+# =================================================================
+# LÄMMITIN (v2) - RAPORTTI JA KÄNNYKKÄILMOITUS
+# =================================================================
+lataus_valmis_v2:
+  alias: "Lämmitin: Lataus valmis -raportti ja tyhjennys"
+  sequence:
+    - variables:
+        suunnitelma: "{{ state_attr('sensor.lataus_suunnitelma_lammitin', 'jaksot') }}"
+        teho_parit: >-
+          {% set raw = states('input_text.lataus_tehot_luonnos_v2').split(',') | map('trim') | reject('eq', '') | list %}
+          {% set ns = namespace(lista=[]) %}
+          {% for p in raw %}
+            {% set osat = p.split(':') %}
+            {% if osat | length == 2 %}
+              {% set ns.lista = ns.lista + [[osat[0] | int, osat[1] | float(0)]] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.lista }}
+        
+        raportti_teksti: >-
+          {% set ns = namespace(items=[], snt=0, kwh=0, t_idx=1) %}
+          {% for p in suunnitelma %}
+            {% set haku = teho_parit | selectattr('0', 'eq', p.idx | int) | first | default(none) %}
+            {% set t_w = haku[1] | float(0) if haku is not none and haku | length == 2 else 0 %}
+            {% set j_kwh = (t_w / 1000) * 0.25 %}
+            {% if p.ladataanko == 'KYLLÄ' %}
+              {% set ns.snt = ns.snt + (p.hinta * j_kwh) %}
+              {% set ns.kwh = ns.kwh + j_kwh %}
+              {% set status = (t_w | round(0) | string) ~ " W" %}
+            {% else %}
+              {% set status = "EI LADATA" %}
+            {% endif %}
+            {% set ns.items = ns.items + [ (ns.t_idx | string) + ". " + p.aloitus + "; " + (p.hinta | round(3) | string | replace('.',',')) + " snt ; " + status ] %}
+            {% set ns.t_idx = ns.t_idx + 1 %}
+          {% endfor %}
+          Lämmittimen lataus päättynyt.
+          Yhteensä: **{{ ns.kwh | round(2) | string | replace('.',',') }} kWh** | **{{ (ns.snt / 100) | round(2) | string | replace('.',',') }} €**
+
+          **Suoritetut jaksot:**
+          {{ ns.items | join('\n') }}
+
+    - action: persistent_notification.create
+      data:
+        title: "🔋 Lämmitin: Lataus valmis ({{ now().strftime('%d.%m.%Y klo %H:%M:%S') }})"
+        message: "{{ raportti_teksti }}"
+        notification_id: "lataus_valmis_raportti_v2"
+
+    # --- KORJATTU PUSH-ILMOITUS JAKE ONEPLUS ---
+    #- action: notify.mobile_app_jake_oneplus
+    #  data:
+    #    title: "⚡ Lämmitin: Lämmitys valmis!"
+    #    message: "{{ raportti_teksti.split('Lämmittimen lataus päättynyt.')[1].split('**Suoritetut jaksot:**')[0] | replace('**', '') | trim }}"
+    #    data:
+    #      tag: "lammitin-valmis"
+    #      ttl: 0
+    #      priority: high
+
+    - action: input_text.set_value
+      target:
+        entity_id:
+          - input_text.valitut_jaksot_luonnos_v2
+          - input_text.valitut_jaksot_grid_v2
+          - input_text.valitut_jaksot_aktiivinen_v2
+      data:
+        value: ""
+
+kaynnista_lataus_ja_tallenna_aika:
+  alias: "Käynnistä lataus ja tallenna aloitusaika"
+  sequence:
+    # Tallennetaan nykyhetki helperiin
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_aloitettu_klo
+      data:
+        datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+    
+    # Käynnistetään varsinainen ohjausautomaatio
+    - action: automation.turn_on
+      target:
+        entity_id: automation.reaaliaikainen_lataus_v1_1
+
+
+kaynnista_simulaatio_ja_tallenna_aika:
+  alias: "Käynnistä simulaatio ja tallenna aloitusaika"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_aloitettu_klo
+      data:
+        datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+    - action: automation.turn_on
+      target:
+        entity_id: automation.latauksen_simulaatio_v1_2
+
+
+kaynnista_lataus_lammitin:
+  alias: "Lämmitin: Aloita lataus"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_aloitettu_klo_v2
+      data:
+        datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+    - action: automation.turn_on
+      target:
+        entity_id: automation.reaaliaikainen_lataus_lammitin
+
+keskeyta_lataus_v2:
+  alias: "Lämmitin: Keskeytä lataus"
+  sequence:
+    - action: automation.turn_off
+      target:
+        entity_id: automation.reaaliaikainen_lataus_lammitin
+    - action: switch.turn_off
+      target:
+        entity_id: switch.wiz_socket_98d017
+    - action: persistent_notification.create
+      data:
+        title: "⚠️ Lämmitin: Ohjaus keskeytetty"
+        message: "Lataus keskeytetty manuaalisesti hetkellä: {{ now().strftime('%H:%M:%S') }}."
+
+muuta_lataus_valmis_tunnit_v2:
+  alias: "Lämmitin: Muuta tunnit"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_valmis_klo_v2
+      data:
+        time: >
+          {% set nykyinen = states('input_datetime.lataus_valmis_klo_v2').split(':') %}
+          {% set h = (nykyinen[0]|int + muutos) % 24 %}
+          {{ "%02d:%s:%s" | format(h, nykyinen[1], nykyinen[2]) }}
+
+muuta_lataus_valmis_minuutit_v2:
+  alias: "Lämmitin: Muuta minuutit"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_valmis_klo_v2
+      data:
+        time: >
+          {% set nykyinen = states('input_datetime.lataus_valmis_klo_v2').split(':') %}
+          {% set m = (nykyinen[1]|int + muutos) %}
+          {% if m >= 60 %}{% set m = 0 %}{% elif m < 0 %}{% set m = 45 %}{% endif %}
+          {{ "%s:%02d:%s" | format(nykyinen[0], m, nykyinen[2]) }}
+          
+          
+muuta_latauskestoa_tunnit_v2:
+  alias: "Lämmitin: Muuta kestoa tunneilla"
+  sequence:
+    - action: input_number.set_value
+      target:
+        entity_id: input_number.lataus_kesto_jaksot_v2
+      data:
+        value: >
+          {% set nykyinen = states('input_number.lataus_kesto_jaksot_v2') | int(0) %}
+          {% set uusi = nykyinen + (muutos * 4) %}
+          {{ [[0, uusi] | max, 96] | min }}
+    - action: script.laske_halvimmat_jaksot_v2 # LASKETAAN UUDELLEEN
+
+muuta_latauskestoa_minuutit_v2:
+  alias: "Lämmitin: Muuta kestoa minuuteilla"
+  sequence:
+    - action: input_number.set_value
+      target:
+        entity_id: input_number.lataus_kesto_jaksot_v2
+      data:
+        value: >
+          {% set nykyinen = states('input_number.lataus_kesto_jaksot_v2') | int(0) %}
+          {% set uusi = nykyinen + (muutos // 15) %}
+          {{ [[0, uusi] | max, 96] | min }}
+    - action: script.laske_halvimmat_jaksot_v2 # LASKETAAN UUDELLEEN
+
+
+
+laske_halvimmat_jaksot_v2:
+  alias: "Lämmitin: Laske halvimmat jaksot"
+  sequence:
+    - variables:
+        hinnat: "{{ state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') }}"
+        maara: "{{ states('input_number.lataus_kesto_jaksot_v2') | int(0) }}"
+        paiva: "{{ states('input_select.lataus_paiva_v2') }}"
+        nyt_idx: "{{ (now().hour * 4) + (now().minute // 15) }}"
+        
+        # Lasketaan loppuindeksi v2-kellonajan mukaan
+        valmis_klo: "{{ states('input_datetime.lataus_valmis_klo_v2').split(':') }}"
+        loppu_idx: >
+          {% set h = valmis_klo[0] | int(0) %} {% set m = valmis_klo[1] | int(0) %}
+          {% set base = (h * 4) + (m // 15) %}
+          {{ base + 96 if paiva == 'Huomenna' else base }}
+
+        # Haetaan halvimmat jaksot Lämmittimen asetuksilla
+        valitut: >-
+          {% if hinnat is iterable and maara > 0 %}
+            {% set lista = hinnat | selectattr('org', 'ge', nyt_idx | int) | selectattr('org', 'le', loppu_idx | int) | sort(attribute='val') %}
+            {% set poimitut = lista[:maara] | map(attribute='org') | list %}
+            {{ poimitut | sort | join(',') }}
+          {% else %}
+            {# KORJATTU TÄSSÄ: Jätetään täysin tyhjäksi, jolloin Lämmittimenkin luonnoskenttä nollautuu oikein empty-tilaan #}
+          {% endif %}
+
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_luonnos_v2
+      data:
+        value: "{{ valitut }}"
+        
+muuta_lataus_alkaa_tunnit:
+  alias: "Sähköauto: Muuta aloitusaikaa tunneilla"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_alkaa_klo
+      data:
+        time: >
+          {% set nykyinen = states('input_datetime.lataus_alkaa_klo').split(':') %}
+          {% set h = (nykyinen[0]|int + muutos) % 24 %}
+          {{ "%02d:%s:%s" | format(h, nykyinen[1], nykyinen[2]) }}
+    - action: script.laske_halvimmat_jaksot # KORJAUS: Lasketaan uusi luonnos heti
+
+muuta_lataus_alkaa_minuutit:
+  alias: "Sähköauto: Muuta aloitusaikaa minuuteilla"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_alkaa_klo
+      data:
+        time: >
+          {% set nykyinen = states('input_datetime.lataus_alkaa_klo').split(':') %}
+          {% set m = (nykyinen[1]|int + muutos) %}
+          {% if m >= 60 %}{% set m = 0 %}{% elif m < 0 %}{% set m = 45 %}{% endif %}
+          {{ "%s:%02d:%s" | format(nykyinen[0], m, nykyinen[2]) }}
+    - action: script.laske_halvimmat_jaksot # KORJAUS: Lasketaan uusi luonnos heti
+
+laske_halvimmat_jaksot:
+  alias: "Sähköauto: Laske halvimmat jaksot"
+  sequence:
+    - variables:
+        hinnat: "{{ state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') }}"
+        maara: "{{ states('input_number.lataus_kesto_jaksot') | int(0) }}"
+        paiva: "{{ states('input_select.lataus_paiva') }}"
+        
+        # KORJAUS: Haetaan aloitusindeksi käyttäjän valitsemasta kellonajasta
+        alku_klo: "{{ states('input_datetime.lataus_alkaa_klo').split(':') }}"
+        nyt_idx: >-
+          {% set h = alku_klo[0] | int(0) %}{% set m = alku_klo[1] | int(0) %}
+          {{ (h * 4) + (m // 15) }}
+        
+        # Haetaan loppuindeksi valmiskellonajasta
+        valmis_klo: "{{ states('input_datetime.lataus_valmis_klo').split(':') }}"
+        loppu_idx: >-
+          {% set h = valmis_klo[0] | int(0) %}{% set m = valmis_klo[1] | int(0) %}
+          {% set base = (h * 4) + (m // 15) %}
+          {{ base + 96 if paiva == 'Huomenna' else base }}
+
+        valitut: >-
+          {% if hinnat is iterable and maara > 0 %}
+            {% set lista = hinnat | selectattr('org', 'ge', nyt_idx | int) | selectattr('org', 'le', loppu_idx | int) | sort(attribute='val') %}
+            {% set poimitut = lista[:maara] | map(attribute='org') | list %}
+            {{ poimitut | sort | join(',') }}
+          {% else %}
+            ""
+          {% endif %}
+
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_luonnos
+      data:
+        value: "{{ valitut }}"
+
+  
+          
+laske_latausikkuna:
+  alias: "Laske optimaalinen latausikkuna"
+  sequence:
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.valitut_jaksot_luonnos
+      data:
+        value: >
+          {# 1. Aika-ikkuna ja kesto #}
+          {% set valmis_data = states('input_datetime.lataus_valmis_klo').split(':') %}
+          {% set paiva = states('input_select.lataus_paiva') %}
+          {% set h_valmis = valmis_data[0] | int(0) %}
+          {% set m_valmis = valmis_data[1] | int(0) %}
+          {% set loppu_idx = (h_valmis * 4) + (m_valmis // 15) %}
+          {% set loppu_idx = loppu_idx + 96 if paiva == 'Huomenna' else loppu_idx %}
+          {% set aloitus_idx = (now().hour * 4) + (now().minute // 15) %}
+          {% set kesto = states('input_number.lataus_kesto_jaksot') | int(0) %}
+          
+          {# 2. Haetaan hinnat ja etsitään X halvinta #}
+          {% set hinnat = state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') %}
+          {% if hinnat is iterable and kesto > 0 %}
+            {% set ikkuna = hinnat | selectattr('org', 'ge', aloitus_idx) | selectattr('org', 'le', loppu_idx) | list %}
+            
+            {# Otetaan aina täysi määrä (kesto) halvimpia #}
+            {% set automaatti_valinnat = ikkuna | sort(attribute='val') | list %}
+            {% set valitut_automaatti = automaatti_valinnat[:kesto] | map(attribute='org') | list %}
+            
+            {{ valitut_automaatti | sort | join(',') }}
+          {% else %}
+            {# KORJAUS: Jätetään tämä täysin tyhjäksi ilman lainausmerkkejä, jolloin kenttä nollautuu oikein #}
+          {% endif %}
+          
+lataa_sahkoauton_oletukset:
+  alias: "Sähköauto: Lataa oletusasetukset"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_alkaa_klo
+      data:
+        # KORJATTU: Poistettu sana _top_ muuttujan nimestä
+        time: "{{ states('input_datetime.sahkoauto_oletus_aloitus') if states('input_datetime.sahkoauto_oletus_aloitus') not in ['unknown','unavailable'] else '22:00:00' }}"
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_valmis_klo
+      data:
+        time: "{{ states('input_datetime.sahkoauto_oletus_lopetus') if states('input_datetime.sahkoauto_oletus_lopetus') not in ['unknown','unavailable'] else '07:00:00' }}"
+    - action: input_number.set_value
+      target:
+        entity_id: input_number.lataus_kesto_jaksot
+      data:
+        value: "{{ states('input_number.sahkoauto_oletus_kesto') | int(0) }}"
+    - action: script.laske_halvimmat_jaksot
+
+
+
+lataa_lammityksen_oletukset:
+  alias: "Lämmitin: Lataa oletusasetukset"
+  sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.lataus_valmis_klo_v2
+      data:
+        time: "{{ states('input_datetime.lammitin_oletus_lopetus_v2') }}"
+    - action: input_number.set_value
+      target:
+        entity_id: input_number.lataus_kesto_jaksot_v2
+      data:
+        value: "{{ states('input_number.lammitin_oletus_kesto_v2') | int(0) }}"
+    - action: script.laske_halvimmat_jaksot_v2
+
+
+

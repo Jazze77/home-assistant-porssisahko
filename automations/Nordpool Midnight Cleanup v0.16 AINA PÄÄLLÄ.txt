@@ -1,0 +1,48 @@
+alias: Nordpool Midnight Cleanup v0.16 AINA PÄÄLLÄ
+description: Siirtää molempien pistokkeiden listat ja nollaa mittarit
+triggers:
+  - at: "00:00:00"
+    trigger: time
+actions:
+  - repeat:
+      for_each:
+        - input_text.valitut_jaksot_luonnos
+        - input_text.valitut_jaksot_aktiivinen
+        - input_text.valitut_jaksot_grid
+        - input_text.valitut_jaksot_luonnos_v2
+        - input_text.valitut_jaksot_aktiivinen_v2
+        - input_text.valitut_jaksot_grid_v2
+      sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: "{{ repeat.item }}"
+          data:
+            value: >
+              {% set s = states(repeat.item) %} {% if s and s not in ['unknown',
+              'unavailable', 'none', ''] %}
+                {% set jaksot = s.split(',') | map('int') | list %}
+                {% set ns = namespace(uudet=[]) %}
+                {% for j in jaksot %}
+                  {% if j >= 96 %}
+                    {% set ns.uudet = ns.uudet + [j - 96] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.uudet | sort | join(',') }}
+              {% else %}
+                ""
+              {% endif %}
+  - action: input_select.select_option
+    target:
+      entity_id:
+        - input_select.lataus_paiva
+        - input_select.lataus_paiva_v2
+    data:
+      option: Tänään
+  - action: system_log.write
+    data:
+      level: warning
+      logger: custom_components.nordpool_cleanup
+      message: >-
+        Nordpool keskiyön siivous v0.16 suoritettu. Molempien laitteiden
+        (Sähköauto & Lämmitin) jaksot siirretty.
+mode: single

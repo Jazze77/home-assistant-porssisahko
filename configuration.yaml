@@ -1,0 +1,1003 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# UUSI OSIO: Tämä hoitaa kulutusseurannan ja historian automaattisesti
+
+
+utility_meter:
+  wiz_kulutus_paiva:
+    source: input_number.wiz_paivan_kulutus_kwh
+    cycle: daily
+    unique_id: wiz_consumption_daily_meter
+    name: "WiZ Kulutus (Päivittäinen)"
+  wiz_kustannus_paiva:
+    source: input_number.wiz_paivan_kustannus_euroa
+    cycle: daily
+    unique_id: wiz_cost_daily_meter
+    name: "WiZ Kustannus (Päivittäinen)"
+
+sensor:
+  - platform: statistics
+    name: "WiZ Pistoke 15min Keskiarvo"
+    unique_id: wiz_socket_15min_stats
+    entity_id: sensor.wiz_socket_900c4e_power
+    state_characteristic: mean
+    max_age:
+      minutes: 15
+    sampling_size: 4000
+    precision: 2
+    
+  - platform: statistics
+    name: "WiZ Lämmitin 15min Keskiarvo"
+    unique_id: wiz_socket_98d017_15min_stats
+    entity_id: sensor.wiz_socket_98d017_power
+    state_characteristic: mean
+    max_age:
+      minutes: 15
+    sampling_size: 4000
+    precision: 2
+    
+
+template:
+  # TAVALLISET SENSORIT (Päivittyvät tilan mukaan)
+  - sensor:
+      - name: "Valitut jaksot kpl"
+        unique_id: valitut_jaksot_count
+        state: >
+          {% set l = states('input_text.valitut_jaksot_luonnos').split(',') | map('trim') | reject('eq', '') | list | length %}
+          {% set g = states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list | length %}
+          {{ l + g }}
+        unit_of_measurement: "kpl"
+        icon: mdi:counter
+        attributes:
+          # Luonnos (Automaatti)
+          luonnos_kpl: >
+            {{ states('input_text.valitut_jaksot_luonnos').split(',') | map('trim') | reject('eq', '') | list | length }}
+          luonnos_kesto_teksti: >
+            {% set kpl = states('input_text.valitut_jaksot_luonnos').split(',') | map('trim') | reject('eq', '') | list | length %}
+            {{ (kpl * 15) // 60 }}h {{ (kpl * 15) % 60 }}min
+          
+          # Grid (Käyttäjän valinnat)
+          grid_kpl: >
+            {{ states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list | length }}
+          grid_kesto_h: >
+            {% set kpl = states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list | length %}
+            {{ (kpl * 15) // 60 }}
+          grid_kesto_min: >
+            {% set kpl = states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list | length %}
+            {{ (kpl * 15) % 60 }}
+          grid_kesto_teksti: >
+            {% set kpl = states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | list | length %}
+            {{ (kpl * 15) // 60 }}h {{ (kpl * 15) % 60 }}min
+
+          # Yhteensä (Kaikki)
+          yhteensa_kesto_teksti: >
+            {% set kpl = states('sensor.valitut_jaksot_kpl') | int(0) %}
+            {{ (kpl * 15) // 60 }}h {{ (kpl * 15) % 60 }}min
+  - sensor:
+      - name: "Valitut jaksot kpl v2"
+        unique_id: valitut_jaksot_count_v2
+        state: >
+          {% set l = states('input_text.valitut_jaksot_luonnos_v2').split(',') | map('trim') | reject('eq', '') | list | length %}
+          {% set g = states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | list | length %}
+          {{ l + g }}
+        unit_of_measurement: "jaksoa"
+        icon: mdi:counter
+        attributes:
+          # Luonnos (Automaatti v2)
+          luonnos_kpl: >
+            {{ states('input_text.valitut_jaksot_luonnos_v2').split(',') | map('trim') | reject('eq', '') | list | length }}
+          luonnos_kesto_teksti: >
+            {% set kpl = states('input_text.valitut_jaksot_luonnos_v2').split(',') | map('trim') | reject('eq', '') | list | length %}
+            {{ (kpl * 15) // 60 }}h {{ (kpl * 15) % 60 }}min
+          
+          # Grid (Käyttäjän valinnat v2)
+          grid_kpl: >
+            {{ states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | list | length }}
+          grid_kesto_h: >
+            {% set kpl = states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | list | length %}
+            {{ (kpl * 15) // 60 }}
+          grid_kesto_min: >
+            {% set kpl = states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | list | length %}
+            {{ (kpl * 15) % 60 }}
+          grid_kesto_teksti: >
+            {% set kpl = states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | list | length %}
+            {{ (kpl * 15) // 60 }}h {{ (kpl * 15) % 60 }}min
+
+          # Yhteensä (Kaikki v2)
+          yhteensa_kesto_teksti: >
+            {% set kpl = states('sensor.valitut_jaksot_kpl_v2') | int(0) %}
+            {{ (kpl * 15) // 60 }}h {{ (kpl * 15) % 60 }}min
+
+      # --- SÄHKÖAUTO (v1) ---
+  - binary_sensor:
+      - name: "Lataussuunnitelma muuttunut"
+        unique_id: lataussuunnitelma_muuttunut
+        state: >-
+          {# PURETAAN LISTAT JA SUODATETAAN POIS TYHJÄT SEKÄ HAAMULAINAUSMERKIT #}
+          {% set luonnos_raw = states('input_text.valitut_jaksot_luonnos').split(',') | map('trim') | reject('eq', '') | reject('eq', '""') | reject('eq', "''") | list %}
+          {% set grid_raw = states('input_text.valitut_jaksot_grid').split(',') | map('trim') | reject('eq', '') | reject('eq', '""') | reject('eq', "''") | list %}
+          {% set aktiivinen_raw = states('input_text.valitut_jaksot_aktiivinen').split(',') | map('trim') | reject('eq', '') | reject('eq', '""') | reject('eq', "''") | list %}
+
+          {# Tehdään numeromuunnos vain jos listalla on oikeita numeroita #}
+          {% set luonnos = luonnos_raw | map('int') | list if luonnos_raw | length > 0 else [] %}
+          {% set grid = grid_raw | map('int') | list if grid_raw | length > 0 else [] %}
+          {% set aktiivinen = aktiivinen_raw | map('int') | sort | list if aktiivinen_raw | length > 0 else [] %}
+
+          {% set ehdotus = (luonnos + grid) | unique | sort | list %}
+          {{ ehdotus != aktiivinen }}
+
+  - binary_sensor:
+      # --- LÄMMITTIMEN VAKAUTETTU MUUTTUNUT-SENSORI ---
+      - name: "Lataussuunnitelma muuttunut v2"
+        unique_id: lataussuunnitelma_muuttunut_v2
+        state: >-
+          {# PURETAAN LÄMMITTIMEN LISTAT JA SUODATETAAN HAAMUT POIS #}
+          {% set luonnos_raw = states('input_text.valitut_jaksot_luonnos_v2').split(',') | map('trim') | reject('eq', '') | reject('eq', '""') | reject('eq', "''") | list %}
+          {% set grid_raw = states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq', '') | reject('eq', '""') | reject('eq', "''") | list %}
+          {% set aktiivinen_raw = states('input_text.valitut_jaksot_aktiivinen_v2').split(',') | map('trim') | reject('eq', '') | reject('eq', '""') | reject('eq', "''") | list %}
+
+          {# Tehdään numeromuunnos vain jos listalla on oikeita numeroita #}
+          {% set luonnos = luonnos_raw | map('int') | list if luonnos_raw | length > 0 else [] %}
+          {% set grid = grid_raw | map('int') | list if grid_raw | length > 0 else [] %}
+          {% set aktiivinen = aktiivinen_raw | map('int') | sort | list if aktiivinen_raw | length > 0 else [] %}
+
+          {% set ehdotus = (luonnos + grid) | unique | sort | list %}
+          {{ ehdotus != aktiivinen }}
+
+
+ # TRIGGERI-POHJAISET SENSORIT (Päivittyvät listattujen muutosten mukaan)
+  - trigger:
+      - platform: state
+        entity_id: 
+          - sensor.nordpool_kwh_fi_eur_3_10_0255
+          - input_text.valitut_jaksot_luonnos
+          - input_text.valitut_jaksot_grid # LISÄTTY TÄMÄ
+    sensor:
+      - name: "Nordpool Oma"
+        unique_id: nordpool_oma_v4_minimal
+        state: "{{ states('sensor.nordpool_kwh_fi_eur_3_10_0255') }}"
+        unit_of_measurement: "snt/kWh"
+        attributes:
+          tomorrow_valid: "{{ state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'tomorrow_valid') }}"
+          min_price: >
+            {% set t = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'today') or [] %}
+            {% set h = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'tomorrow') or [] %}
+            {{ (t + h) | map('float') | min | default(0) }}
+          max_price: >
+            {% set t = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'today') or [] %}
+            {% set h = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'tomorrow') or [] %}
+            {{ (t + h) | map('float') | max | default(1) }}
+          last_valid_price_time: >
+            {% set data = state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') %}
+            {% if data and data | length > 0 %}
+              {% set last_org = data | map(attribute='org') | max %}
+              {% set startOfDay = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+              {{ (startOfDay + timedelta(minutes=last_org * 15)).strftime('%Y-%m-%d %H:%M') }}
+            {% else %}
+              unknown
+            {% endif %}            
+          raw_today_and_tomorrow: >
+            {% set today = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'raw_today') or [] %}
+            {% set tomorrow = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'raw_tomorrow') or [] %}
+            {% set valid = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'tomorrow_valid') %}
+            {% set combined = today + (tomorrow if (valid and tomorrow) else []) %}
+            
+            {# Haetaan molemmat listat ja yhdistetään ne tarkistusta varten #}
+            {% set luonnos = states('input_text.valitut_jaksot_luonnos').replace(' ', '').split(',') %}
+            {% set grid = states('input_text.valitut_jaksot_grid').replace(' ', '').split(',') %}
+            {% set kaikki_valitut = luonnos + grid %}
+            
+            {% set min_p = (combined | map(attribute='value') | map('float') | min | default(0)) %}
+            {% set max_p = (combined | map(attribute='value') | map('float') | max | default(1)) %}
+            {% set range_p = max_p - min_p %}
+            {% set sorted_prices = combined | map(attribute='value') | map('float') | sort | list %}
+            
+            {% set ns = namespace(data=[]) %}
+            {% for i in range(combined | length) %}
+              {% set price = combined[i].value | float %}
+              {% set prosentti = ((price - min_p) / (range_p if range_p > 0 else 1)) * 100 %}
+              
+             {# VÄRILOGIIKKA: Tarkistetaan löytyykö indeksi kummasta tahansa listasta #}
+              {% if i | string in kaikki_valitut %}
+                {% set vari = '#2196f3' %} {# Sininen #}
+              {% else %}
+                {% set vari = '#f44336' %} {# Punainen oletus #}
+                {% if prosentti < 15 %}{% set vari = '#1b5e20' %}
+                {% elif prosentti < 30 %}{% set vari = '#4caf50' %}
+                {% elif prosentti < 50 %}{% set vari = '#8bc34a' %}
+                {% elif prosentti < 70 %}{% set vari = '#ffeb3b' %}
+                {% elif prosentti < 90 %}{% set vari = '#ff9800' %}
+                {% endif %}
+              {% endif %}
+
+              {% set ns.data = ns.data + [{
+                'org': i, 
+                'prc': sorted_prices.index(price), 
+                'val': price,
+                'color': vari
+              }] %}
+            {% endfor %}
+            {{ ns.data }}              
+
+  - trigger:
+      - platform: state
+        entity_id: 
+          - sensor.nordpool_kwh_fi_eur_3_10_0255
+          - input_text.valitut_jaksot_luonnos_v2
+          - input_text.valitut_jaksot_grid_v2
+    sensor:
+      - name: "Nordpool Oma Lämmitin"
+        unique_id: nordpool_oma_lammitin
+        state: "{{ states('sensor.nordpool_kwh_fi_eur_3_10_0255') }}"
+        attributes:
+          raw_today_and_tomorrow: >
+            {% set s = states('sensor.nordpool_kwh_fi_eur_3_10_0255') %}
+            {% if s not in ['unknown', 'unavailable'] %}
+              {% set nordpool = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'raw_today') + state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'raw_tomorrow') %}
+              {% set luonnos = states('input_text.valitut_jaksot_luonnos_v2').split(',') | map('trim') | reject('eq','') | list %}
+              {% set grid = states('input_text.valitut_jaksot_grid_v2').split(',') | map('trim') | reject('eq','') | list %}
+              {% set valitut = (luonnos + grid) | map('int') | unique | list %}
+              
+              {% set ns = namespace(res=[]) %}
+              {% for i in range(nordpool | length) %}
+                {% set h = nordpool[i] %}
+                {% set is_selected = i in valitut %}
+                {# Käytetään Lämmittimelle eri väriä, esim. vihreää #}
+                {% set color = '#4CAF50' if is_selected else '#ff9800' %}
+                {% set ns.res = ns.res + [{'org': i, 'val': h.value, 'color': color}] %}
+              {% endfor %}
+              {{ ns.res }}
+            {% else %} [] {% endif %}
+
+
+  - trigger:
+      - platform: state
+        entity_id: 
+          - sensor.nordpool_kwh_fi_eur_3_10_0255
+          - input_text.valitut_jaksot_aktiivinen
+          - input_text.valitut_jaksot_aktiivinen_v2
+    sensor:
+      - name: "Nordpool Yhdistetty Master"
+        unique_id: nordpool_yhdistetty_master
+        state: "{{ states('sensor.nordpool_kwh_fi_eur_3_10_0255') }}"
+        attributes:
+          raw_today_and_tomorrow: >
+            {% set s = states('sensor.nordpool_kwh_fi_eur_3_10_0255') %}
+            {% if s not in ['unknown', 'unavailable'] %}
+              {% set nordpool = state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'raw_today') + state_attr('sensor.nordpool_kwh_fi_eur_3_10_0255', 'raw_tomorrow') %}
+              {% set auto_list = states('input_text.valitut_jaksot_aktiivinen').split(',') | map('trim') | reject('eq','') | list %}
+              {% set lammitin_list = states('input_text.valitut_jaksot_aktiivinen_v2').split(',') | map('trim') | reject('eq','') | list %}
+              
+              {% set ns = namespace(res=[]) %}
+              {% for i in range(nordpool | length) %}
+                {% set h = nordpool[i] %}
+                {% set auto_on = i | string in auto_list %}
+                {% set lammitin_on = i | string in lammitin_list %}
+                
+                {# MÄÄRITETÄÄN VÄRI VARAUKSEN MUKAAN #}
+                {% if auto_on and lammitin_on %}
+                  {% set color = '#f44336' %} {# MOLEMMAT PÄÄLLÄ (Punainen) #}
+                {% elif auto_on %}
+                  {% set color = '#2196F3' %} {# VAIN SÄHKÖAUTO (Sininen) #}
+                {% elif lammitin_on %}
+                  {% set color = '#9C27B0' %} {# VAIN LÄMMITIN (Violetti) #}
+                {% else %}
+                  {# Normaalit hintavärit (Vihreä jos halpa, muuten oranssi/keltainen) #}
+                  {% set color = '#4CAF50' if h.value < 5 else '#ff9800' %}
+                {% endif %}
+                
+                {% set ns.res = ns.res + [{'org': i, 'val': h.value, 'color': color}] %}
+              {% endfor %}
+              {{ ns.res }}
+            {% else %} [] {% endif %}
+
+
+  # =================================================================
+  # SÄHKÖAUTO (v1) - VIIMEISIN SUORITETTU LATAUS (ITSESTÄÄN RIIPPUMATON)
+  # =================================================================
+  - trigger:
+      - platform: state
+        entity_id: 
+          - automation.reaaliaikainen_lataus_v1_1
+          - automation.latauksen_simulaatio_v1_2
+        from: "on"
+        to: "off"
+    sensor:
+      - name: "Viimeisin Suoritettu Lataus"
+        unique_id: viimeisin_suoritettu_lataus
+        state: "{{ now().strftime('%d.%m.%Y %H:%M') }}"
+        attributes:
+          tyyppi: >
+            {% if is_state('automation.reaaliaikainen_lataus_v1_1', 'off') and (as_timestamp(now()) - as_timestamp(states.automation.reaaliaikainen_lataus_v1_1.last_changed) < 30) %}
+              Reaaliaikainen v1.1
+            {% else %}
+              Simulaatio v1.2
+            {% endif %}
+          tallennus_aika: "{{ state_attr('sensor.lataus_suunnitelma', 'tallennus_aika') }}"
+          lataus_aloitettu: "{{ states('input_datetime.lataus_aloitettu_klo') }}"
+          valmis_aika: "{{ now().strftime('%d.%m.%Y klo %H:%M:%S') }}"
+          
+          jaksot: >
+            {% set jaksot = state_attr('sensor.lataus_suunnitelma', 'jaksot') or [] %}
+            {% set t_aloitus = states('input_datetime.lataus_aloitettu_klo') %}
+            {% set dt = as_datetime(t_aloitus) %}
+            {% set m = (dt.minute // 15) * 15 if dt else 0 %}
+            {% set aloitus_ts = as_timestamp(dt.replace(minute=m, second=0, microsecond=0)) if dt else 0 %}
+            
+            {% set t1 = states('input_text.lataus_tehot_luonnos') | replace(',*', '') | replace('*', '') %}
+            {% set t2 = states('input_text.lataus_tehot_luonnos_part2') %}
+            {% set koko_teksti = t1 if t2 == "" else t1 ~ "," ~ t2 %}
+            {% set raw_tehot = koko_teksti.split(',') | map('trim') | reject('eq', '') | list %}
+            
+            {% set ns_tehot = namespace(parit=[]) %}
+            {% for r in raw_tehot %}
+              {% set osat = r.split(':') %}
+              {% if osat | length == 2 %}
+                {% set ns_tehot.parit = ns_tehot.parit + [{'idx': osat[0]|string, 'w': osat[1]|float(0)}] %}
+              {% endif %}
+            {% endfor %}
+
+            {% set ns = namespace(res=[], kpl=0) %}
+            {% for p in jaksot %}
+              {% set osat = p.aloitus.split(' ') %}
+              {% if osat | length == 2 %}
+                {% set pvm = osat[0].split('.') %}
+                {% set iso_p = pvm[2] ~ "-" ~ pvm[1] ~ "-" ~ pvm[0] ~ "T" ~ osat[1] %}
+                {% set jakso_ts = as_timestamp(iso_p) %}
+
+                {% if jakso_ts >= aloitus_ts and ns.kpl < raw_tehot | length %}
+                  {% set haku = ns_tehot.parit | selectattr('idx', 'eq', p.idx | string) | first | default(none) %}
+                  {% set t_w = haku.w if haku is not none else 0 %}
+                  
+                  {% set ns.res = ns.res + [{
+                    'time': jakso_ts * 1000,
+                    'klo': p.aloitus,
+                    'hinta': p.hinta | float(0),
+                    'teho': t_w,
+                    'ajetaanko': p.ladataanko
+                  }] %}
+                  {% set ns.kpl = ns.kpl + 1 %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.res }}
+          
+          # LASKETAAN KULUTUS SUORAAN TALLENNUSHETKEN RAAKADASTA
+          ladattu_kwh: >-
+            {% set jaksot = state_attr('sensor.lataus_suunnitelma', 'jaksot') or [] %}
+            {% set t_aloitus = states('input_datetime.lataus_aloitettu_klo') %}
+            {% set dt = as_datetime(t_aloitus) %}
+            {% set m = (dt.minute // 15) * 15 if dt else 0 %}
+            {% set aloitus_ts = as_timestamp(dt.replace(minute=m, second=0, microsecond=0)) if dt else 0 %}
+            {% set t1 = states('input_text.lataus_tehot_luonnos') | replace(',*', '') | replace('*', '') %}
+            {% set t2 = states('input_text.lataus_tehot_luonnos_part2') %}
+            {% set koko_teksti = t1 if t2 == "" else t1 ~ "," ~ t2 %}
+            {% set raw_tehot = koko_teksti.split(',') | map('trim') | reject('eq', '') | list %}
+            
+            {% set ns_tehot = namespace(parit=[]) %}
+            {% for r in raw_tehot %}
+              {% set osat = r.split(':') %}
+              {% if osat | length == 2 %}
+                {% set ns_tehot.parit = ns_tehot.parit + [{'idx': osat[0]|string, 'w': osat[1]|float(0)}] %}
+              {% endif %}
+            {% endfor %}
+            {% set ns = namespace(kwh=0, kpl=0) %}
+            {% for p in jaksot %}
+              {% set osat = p.aloitus.split(' ') %}
+              {% if osat | length == 2 %}
+                {% set pvm = osat[0].split('.') %}
+                {% set iso_p = pvm[2] ~ "-" ~ pvm[1] ~ "-" ~ pvm[0] ~ "T" ~ osat[1] %}
+                {% if as_timestamp(iso_p) >= aloitus_ts and ns.kpl < raw_tehot | length %}
+                  {% set haku = ns_tehot.parit | selectattr('idx', 'eq', p.idx | string) | first | default(none) %}
+                  {% set t_w = haku.w if haku is not none else 0 %}
+                  {% if p.ladataanko == 'KYLLÄ' %}
+                    {% set ns.kwh = ns.kwh + (t_w / 1000 * 0.25) %}
+                  {% endif %}
+                  {% set ns.kpl = ns.kpl + 1 %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.kwh | round(2) }}
+
+          # LASKETAAN KUSTANNUS SUORAAN TALLENNUSHETKEN RAAKADASTA
+          ladattu_eur: >-
+            {% set jaksot = state_attr('sensor.lataus_suunnitelma', 'jaksot') or [] %}
+            {% set t_aloitus = states('input_datetime.lataus_aloitettu_klo') %}
+            {% set dt = as_datetime(t_aloitus) %}
+            {% set m = (dt.minute // 15) * 15 if dt else 0 %}
+            {% set aloitus_ts = as_timestamp(dt.replace(minute=m, second=0, microsecond=0)) if dt else 0 %}
+            {% set t1 = states('input_text.lataus_tehot_luonnos') | replace(',*', '') | replace('*', '') %}
+            {% set t2 = states('input_text.lataus_tehot_luonnos_part2') %}
+            {% set koko_teksti = t1 if t2 == "" else t1 ~ "," ~ t2 %}
+            {% set raw_tehot = koko_teksti.split(',') | map('trim') | reject('eq', '') | list %}
+            
+            {% set ns_tehot = namespace(parit=[]) %}
+            {% for r in raw_tehot %}
+              {% set osat = r.split(':') %}
+              {% if osat | length == 2 %}
+                {% set ns_tehot.parit = ns_tehot.parit + [{'idx': osat[0]|string, 'w': osat[1]|float(0)}] %}
+              {% endif %}
+            {% endfor %}
+            {% set ns = namespace(snt=0, kpl=0) %}
+            {% for p in jaksot %}
+              {% set osat = p.aloitus.split(' ') %}
+              {% if osat | length == 2 %}
+                {% set pvm = osat[0].split('.') %}
+                {% set iso_p = pvm[2] ~ "-" ~ pvm[1] ~ "-" ~ pvm[0] ~ "T" ~ osat[1] %}
+                {% if as_timestamp(iso_p) >= aloitus_ts and ns.kpl < raw_tehot | length %}
+                  {% set haku = ns_tehot.parit | selectattr('idx', 'eq', p.idx | string) | first | default(none) %}
+                  {% set t_w = haku.w if haku is not none else 0 %}
+                  {% if p.ladataanko == 'KYLLÄ' %}
+                    {% set ns.snt = ns.snt + (p.hinta | float(0) * (t_w / 1000 * 0.25)) %}
+                  {% endif %}
+                  {% set ns.kpl = ns.kpl + 1 %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ (ns.snt / 100) | round(2) }}
+
+    # =================================================================
+  # LÄMMITIN (v2) - VIIMEISIN LÄMMITIN LATAUS (POMMINVARMA AIKALEIMA)
+  # =================================================================
+  - trigger:
+      - platform: state
+        entity_id: 
+          - automation.reaaliaikainen_lataus_lammitin
+          - automation.latauksen_simulaatio_lammitin
+        from: "on"
+        to: "off"
+    sensor:
+      - name: "Viimeisin Lämmitin Lataus"
+        unique_id: viimeisin_lammitin_lataus
+        state: "{{ now().strftime('%d.%m.%Y %H:%M') }}"
+        attributes:
+          tyyppi: >
+            {% if is_state('automation.reaaliaikainen_lataus_lammitin', 'off') and (as_timestamp(now()) - as_timestamp(states.automation.reaaliaikainen_lataus_lammitin.last_changed) < 30) %}
+              Reaaliaikainen v2.1
+            {% else %}
+              Simulaatio v2.2
+            {% endif %}
+          tallennus_aika: "{{ state_attr('sensor.lataus_suunnitelma_lammitin', 'tallennus_aika') }}"
+          lataus_aloitettu: "{{ states('input_datetime.lataus_aloitettu_klo_v2') }}"
+          valmis_aika: "{{ now().strftime('%d.%m.%Y klo %H:%M:%S') }}"
+          
+          jaksot: >
+            {% set jaksot = state_attr('sensor.lataus_suunnitelma_lammitin', 'jaksot') or [] %}
+            {% set t_aloitus = states('input_datetime.lataus_aloitettu_klo_v2') %}
+            {% set dt_alku = as_datetime(t_aloitus) %}
+            {% set m_alku = (dt_alku.minute // 15) * 15 if dt_alku else 0 %}
+            {% set aloitus_ts = as_timestamp(dt_alku.replace(minute=m_alku, second=0, microsecond=0)) if dt_alku else 0 %}
+            
+            {% set t1 = states('input_text.lataus_tehot_luonnos_v2') | replace(',*', '') | replace('*', '') %}
+            {% set t2 = states('input_text.lataus_tehot_luonnos_v2_part2') %}
+            {% set koko_teksti = t1 if t2 == "" else t1 ~ "," ~ t2 %}
+            {% set raw_tehot = koko_teksti.split(',') | map('trim') | reject('eq', '') | list %}
+            {% set ns_tehot = namespace(parit=[]) %}
+            {% for r in raw_tehot %}
+              {% set osat = r.split(':') %}
+              {% if osat | length == 2 %}
+                {% set ns_tehot.parit = ns_tehot.parit + [{'idx': osat[0]|string, 'w': osat[1]|float(0)}] %}
+              {% endif %}
+            {% endfor %}
+
+            {% set ns = namespace(res=[], kpl=0) %}
+            {% for p in jaksot %}
+              {# MUUTRETAAN SUOMALAINEN AIKA SUORAAN JINJA-AIKAKSI ILMAN SPLITTEJÄ #}
+              {% set p_osat = p.aloitus.split(' ') %}
+              {% set pvm = p_osat[0].split('.') %}
+              {% set iso_p = pvm[2] ~ "-" ~ pvm[1] ~ "-" ~ pvm[0] ~ "T" ~ p_osat[1] %}
+              {% set jakso_ts = as_timestamp(iso_p) %}
+
+              {% if jakso_ts >= aloitus_ts and ns.kpl < raw_tehot | length %}
+                {% set haku = ns_tehot.parit | selectattr('idx', 'eq', p.idx | string) | first | default(none) %}
+                {% set t_w = haku.w if haku is not none else 0 %}
+                
+                {% set ns.res = ns.res + [{
+                  'time': jakso_ts * 1000,
+                  'klo': p.aloitus,
+                  'hinta': p.hinta | float(0),
+                  'teho': t_w,
+                  'ajetaanko': p.ladataanko
+                }] %}
+                {% set ns.kpl = ns.kpl + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.res }}
+          
+          ladattu_kwh: >-
+            {% set jaksot = state_attr('sensor.lataus_suunnitelma_lammitin', 'jaksot') or [] %}
+            {% set t_aloitus = states('input_datetime.lataus_aloitettu_klo_v2') %}
+            {% set dt_alku = as_datetime(t_aloitus) %}
+            {% set m_alku = (dt_alku.minute // 15) * 15 if dt_alku else 0 %}
+            {% set aloitus_ts = as_timestamp(dt_alku.replace(minute=m_alku, second=0, microsecond=0)) if dt_alku else 0 %}
+            
+            {% set t1 = states('input_text.lataus_tehot_luonnos_v2') | replace(',*', '') | replace('*', '') %}
+            {% set t2 = states('input_text.lataus_tehot_luonnos_v2_part2') %}
+            {% set koko_teksti = t1 if t2 == "" else t1 ~ "," ~ t2 %}
+            {% set raw_tehot = koko_teksti.split(',') | map('trim') | reject('eq', '') | list %}
+            {% set ns_tehot = namespace(parit=[]) %}
+            {% for r in raw_tehot %}
+              {% set osat = r.split(':') %}
+              {% if osat | length == 2 %}
+                {% set ns_tehot.parit = ns_tehot.parit + [{'idx': osat[0]|string, 'w': osat[1]|float(0)}] %}
+              {% endif %}
+            {% endfor %}
+            {% set ns = namespace(kwh=0, kpl=0) %}
+            {% for p in jaksot %}
+              {% set p_osat = p.aloitus.split(' ') %}
+              {% set pvm = p_osat[0].split('.') %}
+              {% set iso_p = pvm[2] ~ "-" ~ pvm[1] ~ "-" ~ pvm[0] ~ "T" ~ p_osat[1] %}
+              {% if as_timestamp(iso_p) >= aloitus_ts and ns.kpl < raw_tehot | length %}
+                {% set haku = ns_tehot.parit | selectattr('idx', 'eq', p.idx | string) | first | default(none) %}
+                {% set t_w = haku.w if haku is not none else 0 %}
+                {% if p.ladataanko == 'KYLLÄ' %}
+                  {% set ns.kwh = ns.kwh + (t_w / 1000 * 0.25) %}
+                {% endif %}
+                {% set ns.kpl = ns.kpl + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.kwh | round(2) }}
+
+          ladattu_eur: >-
+            {% set jaksot = state_attr('sensor.lataus_suunnitelma_lammitin', 'jaksot') or [] %}
+            {% set t_aloitus = states('input_datetime.lataus_aloitettu_klo_v2') %}
+            {% set dt_alku = as_datetime(t_aloitus) %}
+            {% set m_alku = (dt_alku.minute // 15) * 15 if dt_alku else 0 %}
+            {% set aloitus_ts = as_timestamp(dt_alku.replace(minute=m_alku, second=0, microsecond=0)) if dt_alku else 0 %}
+            
+            {% set t1 = states('input_text.lataus_tehot_luonnos_v2') | replace(',*', '') | replace('*', '') %}
+            {% set t2 = states('input_text.lataus_tehot_luonnos_v2_part2') %}
+            {% set koko_teksti = t1 if t2 == "" else t1 ~ "," ~ t2 %}
+            {% set raw_tehot = koko_teksti.split(',') | map('trim') | reject('eq', '') | list %}
+            {% set ns_tehot = namespace(parit=[]) %}
+            {% for r in raw_tehot %}
+              {% set osat = r.split(':') %}
+              {% if osat | length == 2 %}
+                {% set ns_tehot.parit = ns_tehot.parit + [{'idx': osat[0]|string, 'w': osat[1]|float(0)}] %}
+              {% endif %}
+            {% endfor %}
+            {% set ns = namespace(snt=0, kpl=0) %}
+            {% for p in jaksot %}
+              {% set p_osat = p.aloitus.split(' ') %}
+              {% set pvm = p_osat[0].split('.') %}
+              {% set iso_p = pvm[2] ~ "-" ~ pvm[1] ~ "-" ~ pvm[0] ~ "T" ~ p_osat[1] %}
+              {% if as_timestamp(iso_p) >= aloitus_ts and ns.kpl < raw_tehot | length %}
+                {% set haku = ns_tehot.parit | selectattr('idx', 'eq', p.idx | string) | first | default(none) %}
+                {% set t_w = haku.w if haku is not none else 0 %}
+                {% if p.ladataanko == 'KYLLÄ' %}
+                  {% set ns.snt = ns.snt + (p.hinta | float(0) * (t_w / 1000 * 0.25)) %}
+                {% endif %}
+                  {% set ns.kpl = ns.kpl + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ (ns.snt / 100) | round(2) }}
+
+
+  # =================================================================
+  # SÄHKÖAUTON (v1) HISTORIA-ARKISTOT
+  # =================================================================
+  - trigger:
+      - platform: state
+        entity_id: sensor.viimeisin_suoritettu_lataus
+    sensor:
+      - name: "Lataushistoria Sähköauto"
+        unique_id: lataushistoria_sahkoauto
+        state: "{{ (state_attr('sensor.lataushistoria_sahkoauto', 'lataukset') or []) | length }}"
+        unit_of_measurement: "kpl"
+        attributes:
+          kaikki_kWh: >
+            {% set s = 'sensor.viimeisin_suoritettu_lataus' %}
+            {% set nykyinen = state_attr('sensor.lataushistoria_sahkoauto', 'kaikki_kWh') | default(0) | float(0) %}
+            {% if 'Reaaliaikainen' in state_attr(s, 'tyyppi') | string %}
+              {{ (nykyinen + state_attr(s, 'ladattu_kwh') | float(0)) | round(2) }}
+            {% else %}
+              {{ nykyinen }}
+            {% endif %}
+          lataukset: >
+            {% set s = 'sensor.viimeisin_suoritettu_lataus' %}
+            {% set vanhat = state_attr('sensor.lataushistoria_sahkoauto', 'lataukset') or [] %}
+            {% if 'Reaaliaikainen' in state_attr(s, 'tyyppi') | string %}
+              {# TALLENNETAAN TÄSTÄ ETEENPÄIN ALOITUS JA LOPETUS SUOMALAISESSA MUODOSSA #}
+              {% set uusi = {
+                'aloitus': as_datetime(state_attr(s, 'lataus_aloitettu')).strftime('%d.%m.%Y %H:%M'),
+                'lopetus': state_attr(s, 'valmis_aika').replace(' klo ', ' '),
+                'kWh': state_attr(s, 'ladattu_kwh') | float(0),
+                'eur': state_attr(s, 'ladattu_eur') | float(0)
+              } %}
+              {{ ([uusi] + vanhat)[:50] }}
+            {% else %}
+              {{ vanhat }}
+            {% endif %}
+
+      - name: "Lataushistoria Sähköauto Simulaatio"
+        unique_id: lataushistoria_sahkoauto_simulaatio
+        state: "{{ (state_attr('sensor.lataushistoria_sahkoauto_simulaatio', 'lataukset') or []) | length }}"
+        unit_of_measurement: "kpl"
+        attributes:
+          lataukset: >
+            {% set s = 'sensor.viimeisin_suoritettu_lataus' %}
+            {% set vanhat = state_attr('sensor.lataushistoria_sahkoauto_simulaatio', 'lataukset') or [] %}
+            {% if 'Simulaatio' in state_attr(s, 'tyyppi') | string %}
+              {# TALLENNETAAN ALOITUS JA LOPETUS MYÖS AUTON SIMULAATIOLLE #}
+              {% set uusi = {
+                'aloitus': as_datetime(state_attr(s, 'lataus_aloitettu')).strftime('%d.%m.%Y %H:%M'),
+                'lopetus': state_attr(s, 'valmis_aika').replace(' klo ', ' '),
+                'kWh': state_attr(s, 'ladattu_kwh') | float(0),
+                'eur': state_attr(s, 'ladattu_eur') | float(0)
+              } %}
+              {{ ([uusi] + vanhat)[:20] }}
+            {% else %}
+              {{ vanhat }}
+            {% endif %}
+
+
+  # =================================================================
+  # LÄMMITTIMEN (v2) HISTORIA-ARKISTOT
+  # =================================================================
+  - trigger:
+      - platform: state
+        entity_id: sensor.viimeisin_lammitin_lataus
+    sensor:
+      - name: "Lataushistoria Lämmitin Oikeat"
+        unique_id: lataushistoria_lammitin_oikeat
+        state: "{{ (state_attr('sensor.lataushistoria_lammitin_oikeat', 'lataukset') or []) | length }}"
+        unit_of_measurement: "kpl"
+        attributes:
+          kaikki_kWh: >
+            {% set s = 'sensor.viimeisin_lammitin_lataus' %}
+            {% set nykyinen = state_attr('sensor.lataushistoria_lammitin_oikeat', 'kaikki_kWh') | default(0) | float(0) %}
+            {% if 'Reaaliaikainen' in state_attr(s, 'tyyppi') | string %}
+              {{ (nykyinen + state_attr(s, 'ladattu_kwh') | float(0)) | round(2) }}
+            {% else %}
+              {{ nykyinen }}
+            {% endif %}
+          lataukset: >
+            {% set s = 'sensor.viimeisin_lammitin_lataus' %}
+            {% set vanhat = state_attr('sensor.lataushistoria_lammitin_oikeat', 'lataukset') or [] %}
+            {% if 'Reaaliaikainen' in state_attr(s, 'tyyppi') | string %}
+              {# TALLENNETAAN TÄSTÄ ETEENPÄIN ALOITUS JA LOPETUS SUOMALAISESSA MUODOSSA #}
+              {% set uusi = {
+                'aloitus': as_datetime(state_attr(s, 'lataus_aloitettu')).strftime('%d.%m.%Y %H:%M'),
+                'lopetus': state_attr(s, 'valmis_aika').replace(' klo ', ' '),
+                'kWh': state_attr(s, 'ladattu_kwh') | float(0),
+                'eur': state_attr(s, 'ladattu_eur') | float(0)
+              } %}
+              {{ ([uusi] + vanhat)[:50] }}
+            {% else %}
+              {{ vanhat }}
+            {% endif %}
+            
+      - name: "Lataushistoria Lämmitin Simulaatio"
+        unique_id: lataushistoria_lammitin_simulaatio
+        state: "{{ (state_attr('sensor.lataushistoria_lammitin_simulaatio', 'lataukset') or []) | length }}"
+        unit_of_measurement: "kpl"
+        attributes:
+          lataukset: >
+            {% set s = 'sensor.viimeisin_lammitin_lataus' %}
+            {% set vanhat = state_attr('sensor.lataushistoria_lammitin_simulaatio', 'lataukset') or [] %}
+            {% if 'Simulaatio' in state_attr(s, 'tyyppi') | string %}
+              {# TALLENNETAAN ALOITUS JA LOPETUS KUTEN OIKEISSA LATAUKSISSA #}
+              {% set uusi = {
+                'aloitus': as_datetime(state_attr(s, 'lataus_aloitettu')).strftime('%d.%m.%Y %H:%M'),
+                'lopetus': state_attr(s, 'valmis_aika').replace(' klo ', ' '),
+                'kWh': state_attr(s, 'ladattu_kwh') | float(0),
+                'eur': state_attr(s, 'ladattu_eur') | float(0)
+              } %}
+              {{ ([uusi] + vanhat)[:20] }}
+            {% else %}
+              {{ vanhat }}
+            {% endif %}
+
+            
+  - trigger:
+      - platform: state
+        entity_id: input_text.lataus_suunnitelman_jaksot
+    sensor:
+      - name: "Lataus Suunnitelma"
+        unique_id: lataus_suunnitelma
+        state: "{{ now().strftime('%d.%m.%Y %H:%M:%S') }}"
+        unit_of_measurement: "jaksoa"
+        attributes:
+          tallennus_aika: "{{ now().strftime('%d.%m.%Y klo %H:%M:%S') }}"
+          jaksot: >
+            {% set s_aktiivinen = states('input_text.lataus_suunnitelman_jaksot') %}
+            {% set aktiiviset = s_aktiivinen.split(',') | map('trim') | reject('eq', '') | map('int') | list if s_aktiivinen not in ['unknown', 'unavailable', ''] else [] %}
+            {% set hinnat = state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') %}
+            
+            {% if aktiiviset | length > 0 %}
+              {% set start_idx = aktiiviset | min %}
+              {% set loppu_idx = aktiiviset | max %}
+              {% set ns = namespace(res=[]) %}
+              {# base_day on AINA tämän päivän (tallennuspäivän) alku #}
+              {% set base_day = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+
+              {% for j in range(start_idx, loppu_idx + 1) %}
+                {% set h_data = hinnat | selectattr('org', 'eq', j) | first | default(none) %}
+                {# KORJATTU TÄSSÄ: Lisätään minuutit suoraan ilman jakojäännöstä, jolloin pvm vaihtuu oikein #}
+                {% set jakso_aika = base_day + timedelta(minutes=j*15) %}
+                {% set ns.res = ns.res + [{
+                  'aloitus': jakso_aika.strftime('%d.%m.%Y %H:%M:%S'),
+                  'hinta': h_data.val if h_data is mapping else 0,
+                  'ladataanko': 'KYLLÄ' if j in aktiiviset else 'EI',
+                  'idx': j
+                }] %}
+              {% endfor %}
+              {{ ns.res }}
+            {% else %} [] {% endif %}
+
+
+  - trigger:
+      - platform: state
+        entity_id: input_text.lataus_suunnitelman_jaksot_v2
+    sensor:
+      - name: "Lataus Suunnitelma Lämmitin"
+        unique_id: lataus_suunnitelma_v2
+        state: "{{ now().strftime('%d.%m.%Y %H:%M:%S') }}"
+        unit_of_measurement: "jaksoa"
+        attributes:
+          tallennus_aika: "{{ now().strftime('%d.%m.%Y klo %H:%M:%S') }}"
+          jaksot: >
+            {% set s_aktiivinen = states('input_text.lataus_suunnitelman_jaksot_v2') %}
+            {% set aktiiviset = s_aktiivinen.split(',') | map('trim') | reject('eq', '') | map('int') | list if s_aktiivinen not in ['unknown', 'unavailable', ''] else [] %}
+            {% set hinnat = state_attr('sensor.nordpool_oma', 'raw_today_and_tomorrow') %}
+            
+            {% if aktiiviset | length > 0 %}
+              {% set start_idx = aktiiviset | min %}
+              {% set loppu_idx = aktiiviset | max %}
+              {% set ns = namespace(res=[]) %}
+              {% set base_day = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+
+              {% for j in range(start_idx, loppu_idx + 1) %}
+                {% set h_data = hinnat | selectattr('org', 'eq', j) | first | default(none) %}
+                {# KORJATTU TÄSSÄ SAMALLA TAVALLA: #}
+                {% set jakso_aika = base_day + timedelta(minutes=j*15) %}
+                {% set ns.res = ns.res + [{
+                  'aloitus': jakso_aika.strftime('%d.%m.%Y %H:%M:%S'),
+                  'hinta': h_data.val if h_data is mapping else 0,
+                  'ladataanko': 'KYLLÄ' if j in aktiiviset else 'EI',
+                  'idx': j
+                }] %}
+              {% endfor %}
+              {{ ns.res }}
+            {% else %} [] {% endif %}
+
+  - sensor:
+      # --- SÄHKÖAUTON TODELLINEN TEHO + LISÄKUORMA ---
+      - name: "Sähköauto teho laskettu"
+        unique_id: sahkoauto_teho_laskettu
+        unit_of_measurement: "W"
+        state: >-
+          {% set mitattu = states('sensor.wiz_pistoke_15min_keskiarvo') | float(0) %}
+          {% set lisa = states('input_number.sahkoauto_lisakuorma') | float(0) if is_state('input_boolean.sahkoauto_lisasetukset', 'on') else 0 %}
+          {{ (mitattu + lisa) | round(0) }}
+
+      # --- LÄMMITTIMEN TODELLINEN TEHO + LISÄKUORMA ---
+      - name: "Lämmitin teho laskettu"
+        unique_id: lammitin_teho_laskettu
+        unit_of_measurement: "W"
+        state: >-
+          {% set mitattu = states('sensor.wiz_lammitin_15min_keskiarvo') | float(0) %}
+          {% set lisa = states('input_number.lammitin_lisakuorma_v2') | float(0) if is_state('input_boolean.lammitin_lisasetukset_v2', 'on') else 0 %}
+          {{ (mitattu + lisa) | round(0) }}
+
+  - sensor:
+      # --- SÄHKÖAUTON SÄÄSTÖLASKURI (KULUVA KUUKAUSI) ---
+      - name: "Sähköauto säästö kuluva kuukausi"
+        unique_id: sahkoauto_saasto_kuluva_kuukausi
+        unit_of_measurement: "€"
+        state: >-
+          {% set historia = state_attr('sensor.lataushistoria_sahkoauto', 'lataukset') or [] %}
+          {% set kuluva_kk = now().strftime('%m.%Y') %}
+          {% set ns = namespace(saasto=0.0) %}
+          
+          {% for l in historia %}
+            {# Varmistetaan että kyseessä on tämän kuun lataus ja arvot ovat olemassa #}
+            {% if l.aloitus is defined and kuluva_kk in l.aloitus and l.kWh | float(0) > 0 %}
+              {# Oletetaan maltillinen keskimääräinen säästö: 4 snt/kWh verrattuna päivän keskihintaan #}
+              {# Voit myöhemmin dynaamisesti muuttaa tämän vertaamaan suoraan Nordpool-keskihintaan #}
+              {% set ns.saasto = ns.saasto + (l.kWh | float(0) * 0.04) %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.saasto | round(2) }}
+
+      # --- LÄMMITTIMEN SÄÄSTÖLASKURI (KULUVA KUUKAUSI) ---
+      - name: "Lämmitin säästö kuluva kuukausi"
+        unique_id: lammitin_saasto_kuluva_kuukausi
+        unit_of_measurement: "€"
+        state: >-
+          {% set historia = state_attr('sensor.lataushistoria_lammitin_oikeat', 'lataukset') or [] %}
+          {% set kuluva_kk = now().strftime('%m.%Y') %}
+          {% set ns = namespace(saasto=0.0) %}
+          
+          {% for l in historia %}
+            {% if l.aloitus is defined and kuluva_kk in l.aloitus and l.kWh | float(0) > 0 %}
+              {% set ns.saasto = ns.saasto + (l.kWh | float(0) * 0.04) %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.saasto | round(2) }}
+
+
+# =================================================================
+# PÖRSSISÄHKÖJÄRJESTELMÄN KAIKKI HELPERIT (MUUTTUJAT)
+# =================================================================
+
+# --- TEKSTIKENTÄT (input_text) - LAAJENNETTU 255 MERKKIIN ---
+input_text:
+  # Sähköauto v1
+  valitut_jaksot_luonnos:
+    name: "Sähköauto valitut jaksot luonnos"
+    max: 255
+  valitut_jaksot_part2:
+    name: "Sähköauto valitut jaksot part2"
+    max: 255
+  valitut_jaksot_grid:
+    name: "Sähköauto valitut jaksot grid"
+    max: 255
+  valitut_jaksot_aktiivinen:
+    name: "Sähköauto valitut jaksot aktiivinen"
+    max: 255
+  lataus_suunnitelman_jaksot:
+    name: "Sähköauto suunnitelman jaksot"
+    max: 255
+  lataus_tehot_luonnos:
+    name: "Sähköauto tehot luonnos"
+    max: 255
+  lataus_tehot_luonnos_part2:
+    name: "Sähköauto tehot luonnos part2"
+    max: 255
+
+  # Lämmitin v2
+  valitut_jaksot_luonnos_v2:
+    name: "Lämmitin valitut jaksot luonnos v2"
+    max: 255
+  valitut_jaksot_v2_part2:
+    name: "Lämmitin valitut jaksot v2 part2"
+    max: 255
+  valitut_jaksot_grid_v2:
+    name: "Lämmitin valitut jaksot grid v2"
+    max: 255
+  valitut_jaksot_aktiivinen_v2:
+    name: "Lämmitin valitut jaksot aktiivinen v2"
+    max: 255
+  lataus_suunnitelman_jaksot_v2:
+    name: "Lämmitin suunnitelman jaksot v2"
+    max: 255
+  lataus_tehot_luonnos_v2:
+    name: "Lämmitin tehot luonnos v2"
+    max: 255
+  lataus_tehot_luonnos_v2_part2:
+    name: "Lämmitin tehot luonnos v2 part2"
+    max: 255
+
+
+# --- NUMEROSÄÄTIMET (input_number) ---
+input_number:
+  # Sähköauto v1
+  lataus_kesto_jaksot:
+    name: "Sähköauto lataus kesto jaksot"
+    min: 0
+    max: 96
+    step: 1
+    unit_of_measurement: "jaksoa"
+  sahkoauto_lisakuorma:
+    name: "Sähköauton lisäkuorma"
+    min: 0
+    max: 5000
+    step: 50
+    unit_of_measurement: "W"
+  sahkoauto_oletus_kesto:
+    name: "Sähköauto oletus kesto"
+    min: 0
+    max: 96
+    step: 1
+    unit_of_measurement: "jaksoa"
+  simulaatio_vaihe_idx:
+    name: "Simulaatio vaihe idx"
+    min: 0
+    max: 192
+    step: 1
+
+  # Lämmitin v2
+  lataus_kesto_jaksot_v2:
+    name: "Lämmitin lataus kesto jaksot v2"
+    min: 0
+    max: 96
+    step: 1
+    unit_of_measurement: "jaksoa"
+  lammitin_lisakuorma_v2:
+    name: "Lämmittimen lisäkuorma v2"
+    min: 0
+    max: 5000
+    step: 50
+    unit_of_measurement: "W"
+  lammitin_oletus_kesto_v2:
+    name: "Lämmitin oletus kesto v2"
+    min: 0
+    max: 96
+    step: 1
+    unit_of_measurement: "jaksoa"
+
+# --- AIKAVALITSIMET (input_datetime) ---
+input_datetime:
+  # Sähköauto v1
+  lataus_alkaa_klo:
+    name: "Sähköauto lataus alkaa klo"
+    has_time: true
+    has_date: false
+  lataus_valmis_klo:
+    name: "Sähköauto lataus valmis klo"
+    has_time: true
+    has_date: false
+  sahkoauto_oletus_aloitus:
+    name: "Sähköauto oletus aloitus"
+    has_time: true
+    has_date: false
+  sahkoauto_oletus_lopetus:
+    name: "Sähköauto oletus lopetus"
+    has_time: true
+    has_date: false
+  lataus_aloitettu_klo:
+    name: "Sähköauto lataus aloitettu klo"
+    has_time: true
+    has_date: true # Tämä tarvitsee myös päivämäärän historiaa varten
+
+  # Lämmitin v2
+  lataus_valmis_klo_v2:
+    name: "Lämmitin lataus valmis klo v2"
+    has_time: true
+    has_date: false
+  lammitin_oletus_aloitus_v2:
+    name: "Lämmitin oletus aloitus v2"
+    has_time: true
+    has_date: false
+  lammitin_oletus_lopetus_v2:
+    name: "Lämmitin oletus lopetus v2"
+    has_time: true
+    has_date: false
+  lataus_aloitettu_klo_v2:
+    name: "Lämmitin lataus aloitettu klo v2"
+    has_time: true
+    has_date: true # Tämä tarvitsee myös päivämäärän historiaa varten
+
+# --- PÄÄLLE/POIS KYTKIMET (input_boolean) ---
+input_boolean:
+  # Sähköauto v1
+  sahkoauto_lisasetukset:
+    name: "Sähköauton lisäasetukset"
+  
+  # Lämmitin v2
+  lammitin_lisasetukset_v2:
+    name: "Lämmittimen lisäasetukset v2"
+
+# --- ALASVETOVALIKOT (input_select) ---
+input_select:
+  lataus_paiva:
+    name: "Sähköauto lataus päivä"
+    options:
+      - "Tänään"
+      - "Huomenna"
+  lataus_paiva_v2:
+    name: "Lämmitin lataus päivä v2"
+    options:
+      - "Tänään"
+      - "Huomenna"
+
+  graafi_aikavali:
+    name: "graafi aikavali"
+    options:
+      - "12h"
+      - "18h"
+      - "24h"
+      - "48h"
+      
+
+

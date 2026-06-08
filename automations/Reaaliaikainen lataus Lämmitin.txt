@@ -1,0 +1,96 @@
+alias: Reaaliaikainen lataus Lämmitin
+description: Lämmittimen ohjaus suojatulla teholaskennalla
+triggers:
+  - trigger: state
+    entity_id: automation.reaaliaikainen_lataus_lammitin
+    to: "on"
+actions:
+  - variables:
+      valmis_data: "{{ states('input_datetime.lataus_valmis_klo_v2').split(':') }}"
+      paiva: "{{ states('input_select.lataus_paiva_v2') }}"
+      loppu_idx: >
+        {% set h = valmis_data[0] | int(0) %} {% set m = valmis_data[1] | int(0)
+        %} {% set base = (h * 4) + (m // 15) %} {{ base + 96 if paiva ==
+        'Huomenna' else base }}
+      aloitus_idx: "{{ (now().hour * 4) + (now().minute // 15) }}"
+      kierrokset: "{{ (loppu_idx - aloitus_idx) | int + 1 }}"
+      aktiiviset_jaksot: >-
+        {{ states('input_text.valitut_jaksot_aktiivinen_v2').split(',') |
+        map('trim') | list }}
+  - action: input_text.set_value
+    target:
+      entity_id:
+        - input_text.lataus_tehot_luonnos_v2
+        - input_text.lataus_tehot_luonnos_v2_part2
+    data:
+      value: ""
+  - repeat:
+      count: "{{ kierrokset }}"
+      sequence:
+        - variables:
+            curr_idx: "{{ aloitus_idx | int + repeat.index - 1 }}"
+            on_valittu: "{{ curr_idx | string in aktiiviset_jaksot }}"
+            sekuntia_seuraavaan: >
+              {% set m = now().minute %} {% set s = now().second %} {% set
+              m_next = ((m // 15) + 1) * 15 %} {{ ((m_next - m) * 60) - s }}
+            teho_nyt: >-
+              {{ (states('sensor.lammitin_teho_laskettu') | float(0) | int) if
+              on_valittu else 0 }}
+        - action: switch.{{ 'turn_on' if on_valittu else 'turn_off' }}
+          target:
+            entity_id: switch.wiz_socket_98d017
+        - action: system_log.write
+          data:
+            level: warning
+            logger: custom_components.lataus_lammitin
+            message: >-
+              LATAUS lämmitin: Jakso {{ curr_idx }}. Pistoke: {{ 'PÄÄLLÄ' if
+              on_valittu else 'POIS' }}. Teho: {{ teho_nyt }} W.
+        - delay:
+            seconds: "{{ sekuntia_seuraavaan }}"
+        - action: input_text.set_value
+          target:
+            entity_id: >-
+              {% if states('input_text.lataus_tehot_luonnos_v2') | length >= 245
+              or '*' in states('input_text.lataus_tehot_luonnos_v2') %}
+                input_text.lataus_tehot_luonnos_v2_part2
+              {% else %}
+                input_text.lataus_tehot_luonnos_v2
+              {% endif %}
+          data:
+            value: >-
+              {% set t1 = states('input_text.lataus_tehot_luonnos_v2') %} {% set
+              t2 = states('input_text.lataus_tehot_luonnos_v2_part2') %} {% set
+              uusi_pari = (curr_idx | string) + ":" + (teho_nyt | string) %}
+
+              {% if t1 | length >= 245 or '*' in t1 %}
+                {% if t2 == "" %}{{ uusi_pari }}{% else %}{{ t2 ~ "," ~ uusi_pari }}{% endif %}
+              {% else %}
+                {% if (t1 ~ "," ~ uusi_pari) | length >= 245 %}
+                  {{ t1 ~ ",*" }}
+                {% else %}
+                  {% if t1 == "" %}{{ uusi_pari }}{% else %}{{ t1 ~ "," ~ uusi_pari }}{% endif %}
+                {% endif %}
+              {% endif %}
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: >-
+                    {{
+                    states('input_text.lataus_tehot_luonnos_v2').endswith('*')
+                    and states('input_text.lataus_tehot_luonnos_v2_part2') == ''
+                    }}
+              sequence:
+                - action: input_text.set_value
+                  target:
+                    entity_id: input_text.lataus_tehot_luonnos_v2_part2
+                  data:
+                    value: "{{ (curr_idx | string) + ':' + (teho_nyt | string) }}"
+  - action: switch.turn_off
+    target:
+      entity_id: switch.wiz_socket_98d017
+  - action: script.lataus_valmis_v2
+  - action: automation.turn_off
+    target:
+      entity_id: automation.reaaliaikainen_lataus_lammitin
+mode: single

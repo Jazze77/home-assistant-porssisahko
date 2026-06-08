@@ -1,0 +1,749 @@
+views:
+  - path: default_view
+    title: Home
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: 12h
+                styles:
+                  card:
+                    - height: 40px
+                    - font-size: 14px
+                    - background-color: >
+                        [[[ return states['input_select.graafi_aikavali'].state
+                        === '12h' ? '#1976D2' : '#1a1a1a'; ]]]
+                    - color: white
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.graafi_aikavali
+                    option: 12h
+              - type: custom:button-card
+                name: 18h
+                styles:
+                  card:
+                    - height: 40px
+                    - font-size: 14px
+                    - background-color: >
+                        [[[ return states['input_select.graafi_aikavali'].state
+                        === '18h' ? '#1976D2' : '#1a1a1a'; ]]]
+                    - color: white
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.graafi_aikavali
+                    option: 18h
+              - type: custom:button-card
+                name: 24h
+                styles:
+                  card:
+                    - height: 40px
+                    - font-size: 14px
+                    - background-color: >
+                        [[[ return states['input_select.graafi_aikavali'].state
+                        === '24h' ? '#1976D2' : '#1a1a1a'; ]]]
+                    - color: white
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.graafi_aikavali
+                    option: 24h
+              - type: custom:button-card
+                name: 48h
+                styles:
+                  card:
+                    - height: 40px
+                    - font-size: 14px
+                    - background-color: >
+                        [[[ return states['input_select.graafi_aikavali'].state
+                        === '48h' ? '#1976D2' : '#1a1a1a'; ]]]
+                    - color: white
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.graafi_aikavali
+                    option: null
+          - type: custom:config-template-card
+            entities:
+              - sensor.nordpool_yhdistetty_master
+              - input_select.graafi_aikavali
+            card:
+              type: custom:apexcharts-card
+              graph_span: ${states['input_select.graafi_aikavali'].state}
+              span:
+                start: >-
+                  ${states['input_select.graafi_aikavali'].state === '48h' ?
+                  'day' : 'hour'}
+                offset: +0h
+              header:
+                show: true
+                title: Yhdistetty ohjausnäkymä
+                show_states: false
+              now:
+                show: true
+                label: Nyt
+              series:
+                - entity: sensor.nordpool_yhdistetty_master
+                  type: column
+                  data_generator: |
+                    const data = entity.attributes.raw_today_and_tomorrow;
+                    if (!data) return [];
+                    const startOfDay = new Date();
+                    startOfDay.setHours(0, 0, 0, 0);
+                    return data.map((entry) => {
+                      return {
+                        x: startOfDay.getTime() + (entry.org * 15 * 60 * 1000),
+                        y: entry.val,
+                        fillColor: entry.color
+                      };
+                    });
+          - type: custom:config-template-card
+            entities:
+              - sensor.nordpool_oma
+              - input_select.graafi_aikavali
+            card:
+              type: custom:apexcharts-card
+              graph_span: ${states['input_select.graafi_aikavali'].state}
+              span:
+                start: >-
+                  ${states['input_select.graafi_aikavali'].state === '48h' ?
+                  'day' : 'hour'}
+                offset: +0h
+              header:
+                show: true
+                title: Sähköauto
+                show_states: false
+              now:
+                show: true
+                label: Nyt
+              series:
+                - entity: sensor.nordpool_oma
+                  type: column
+                  data_generator: |
+                    const data = entity.attributes.raw_today_and_tomorrow;
+                    if (!data) return [];
+                    const startOfDay = new Date();
+                    startOfDay.setHours(0, 0, 0, 0);
+                    return data.map((entry) => {
+                      return {
+                        x: startOfDay.getTime() + (entry.org * 15 * 60 * 1000),
+                        y: entry.val,
+                        fillColor: entry.color
+                      };
+                    });
+          - type: custom:config-template-card
+            entities:
+              - sensor.nordpool_oma_lammitin
+              - input_select.graafi_aikavali
+            card:
+              type: custom:apexcharts-card
+              graph_span: ${states['input_select.graafi_aikavali'].state}
+              span:
+                start: >-
+                  ${states['input_select.graafi_aikavali'].state === '48h' ?
+                  'day' : 'hour'}
+                offset: +0h
+              header:
+                show: true
+                title: Lämmitin
+                show_states: false
+              now:
+                show: true
+                label: Nyt
+              series:
+                - entity: sensor.nordpool_oma_lammitin
+                  type: column
+                  data_generator: |
+                    const data = entity.attributes.raw_today_and_tomorrow;
+                    if (!data) return [];
+                    const startOfDay = new Date();
+                    startOfDay.setHours(0, 0, 0, 0);
+                    return data.map((entry) => {
+                      return {
+                        x: startOfDay.getTime() + (entry.org * 15 * 60 * 1000),
+                        y: entry.val,
+                        fillColor: entry.color
+                      };
+                    });
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            entity: switch.wiz_socket_900c4e
+            name: Sähköauto
+            show_state: true
+            show_label: true
+            label: |
+              [[[
+                const teho_sensor = states['sensor.wiz_pistoke_15min_keskiarvo'];
+                const hist_sensor = states['sensor.viimeisin_suoritettu_lataus'];
+                
+                const teho = teho_sensor && teho_sensor.state !== 'unknown' ? teho_sensor.state : '0';
+                const kwh = hist_sensor && hist_sensor.attributes && hist_sensor.attributes.ladattu_kwh ? hist_sensor.attributes.ladattu_kwh : '0';
+                
+                return `Teho: ${teho} W | Viimeisin: ${kwh} kWh`;
+              ]]]
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 12px
+                - padding: 12px
+              state:
+                - font-weight: bold
+                - color: |
+                    [[[ 
+                      return entity && entity.state === 'on' ? '#2196F3' : '#aaaaaa'; 
+                    ]]]
+          - type: custom:button-card
+            entity: switch.wiz_socket_98d017
+            name: Lämmitin
+            show_state: true
+            show_label: true
+            label: |
+              [[[
+                const teho_sensor = states['sensor.wiz_lammitin_15min_keskiarvo'];
+                const hist_sensor = states['sensor.viimeisin_lammitin_lataus'];
+                
+                const teho = teho_sensor && teho_sensor.state !== 'unknown' ? teho_sensor.state : '0';
+                const kwh = hist_sensor && hist_sensor.attributes && hist_sensor.attributes.ladattu_kwh ? hist_sensor.attributes.ladattu_kwh : '0';
+                
+                return `Teho: ${teho} W | Viimeisin: ${kwh} kWh`;
+              ]]]
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 12px
+                - padding: 12px
+              state:
+                - font-weight: bold
+                - color: |
+                    [[[ 
+                      return entity && entity.state === 'on' ? '#4CAF50' : '#aaaaaa'; 
+                    ]]]
+      - type: vertical-stack
+        cards:
+          - type: custom:button-card
+            name: SÄHKÖAUTO
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - height: 40px
+                - border-radius: 10px 10px 0px 0px
+              name:
+                - font-weight: bold
+                - font-size: 14px
+                - justify-self: start
+                - color: '#2196F3'
+          - type: custom:button-card
+            entity: automation.reaaliaikainen_lataus_v1_1
+            show_name: false
+            show_label: true
+            show_icon: false
+            label: |
+              [[[
+                const kaynnissa = entity && entity.state === 'on';
+                let tila_teksti = "❌ Lataus: Ei aktiivinen";
+                
+                if (kaynnissa) {
+                  const klo = states['input_datetime.lataus_valmis_klo'].state;
+                  const paiva = states['input_select.lataus_paiva'].state;
+                  let [h, m] = klo.split(':').map(Number);
+                  m += 14;
+                  if (m >= 60) { m -= 60; h += 1; }
+                  if (h >= 24) h = 0;
+                  const uusi_klo = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0') + ':59';
+                  tila_teksti = `⚡ Lataus käynnissä (Valmis ${paiva.toLowerCase()} klo ${uusi_klo})`;
+                }
+                
+                const teho_nyt = states['sensor.wiz_socket_900c4e_power'] ? states['sensor.wiz_socket_900c4e_power'].state : '0';
+                const teho_ka = states['sensor.wiz_pistoke_15min_keskiarvo'] ? states['sensor.wiz_pistoke_15min_keskiarvo'].state : '0';
+                
+                return `${tila_teksti}\n🔌 Hetkellinen: ${parseInt(teho_nyt)} W | 15min keskiarvo: ${parseInt(teho_ka)} W`;
+              ]]]
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 0px
+                - padding: 12px
+              label:
+                - justify-self: start
+                - text-align: left
+                - font-size: 13px
+                - white-space: pre-wrap
+          - type: custom:button-card
+            entity: sensor.lataus_suunnitelma
+            show_name: false
+            show_label: true
+            show_icon: false
+            label: |
+              [[[
+                const jaksot = entity.attributes.jaksot;
+                if (!jaksot || jaksot.length === 0) return "Ei aktiivista latausta";
+                const kaikkiaan = jaksot.filter(j => j.ladataanko === 'KYLLÄ').length;
+                const tehot_str = states['input_text.lataus_tehot_luonnos'].state;
+                const teho_lista = tehot_str && tehot_str !== "" ? tehot_str.split(',') : [];
+                const valmiina = teho_lista.filter(t => parseFloat(t) > 0).length;
+                const prosentti = kaikkiaan > 0 ? Math.min(100, Math.round((valmiina / kaikkiaan) * 100)) : 0;
+                return `📈 Latauksen edistyminen: ${valmiina} / ${kaikkiaan} jaksoa (${prosentti}%)`;
+              ]]]
+            custom_fields:
+              bar: |
+                [[[
+                  const jaksot = entity.attributes.jaksot;
+                  if (!jaksot || jaksot.length === 0) return "";
+                  const kaikkiaan = jaksot.filter(j => j.ladataanko === 'KYLLÄ').length;
+                  const tehot_str = states['input_text.lataus_tehot_luonnos'].state;
+                  const teho_lista = tehot_str && tehot_str !== "" ? tehot_str.split(',') : [];
+                  const valmiina = teho_lista.filter(t => parseFloat(t) > 0).length;
+                  const prosentti = kaikkiaan > 0 ? Math.min(100, Math.round((valmiina / kaikkiaan) * 100)) : 0;
+                  return `
+                    <div style="background-color: #1a1a1a; border-radius: 10px; height: 12px; width: 100%; border: 1px solid #444; overflow: hidden; margin-top: 8px;">
+                      <div style="background-color: #2196f3; width: ${prosentti}%; height: 100%; transition: width 0.5s ease-in-out;"></div>
+                    </div>
+                  `;
+                ]]]
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 0px 0px 10px 10px
+                - padding: 12px
+                - padding-top: 0px
+              label:
+                - justify-self: start
+                - font-size: 12px
+                - color: '#aaaaaa'
+              custom_fields:
+                bar:
+                  - width: 100%
+          - type: custom:button-card
+            styles:
+              card:
+                - height: 15px
+                - background-color: transparent
+          - type: custom:button-card
+            name: LÄMMITIN
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - height: 40px
+                - border-radius: 10px 10px 0px 0px
+              name:
+                - font-weight: bold
+                - font-size: 14px
+                - justify-self: start
+                - color: '#4CAF50'
+          - type: custom:button-card
+            entity: automation.reaaliaikainen_lataus_lammitin
+            show_name: false
+            show_label: true
+            show_icon: false
+            label: |
+              [[[
+                const kaynnissa = entity && entity.state === 'on';
+                let tila_teksti = "❌ Lämmitys: Ei aktiivinen";
+                
+                if (kaynnissa) {
+                  const klo = states['input_datetime.lataus_valmis_klo_v2'].state;
+                  const paiva = states['input_select.lataus_paiva_v2'].state;
+                  let [h, m] = klo.split(':').map(Number);
+                  m += 14;
+                  if (m >= 60) { m -= 60; h += 1; }
+                  if (h >= 24) h = 0;
+                  const uusi_klo = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0') + ':59';
+                  tila_teksti = `⚡ Lämmitys käynnissä (Valmis ${paiva.toLowerCase()} klo ${uusi_klo})`;
+                }
+                
+                const teho_nyt = states['sensor.wiz_socket_98d017_power'] ? states['sensor.wiz_socket_98d017_power'].state : '0';
+                const teho_ka = states['sensor.wiz_lammitin_15min_keskiarvo'] ? states['sensor.wiz_lammitin_15min_keskiarvo'].state : '0';
+                
+                return `${tila_teksti}\n🔌 Hetkellinen: ${parseInt(teho_nyt)} W | 15min keskiarvo: ${parseInt(teho_ka)} W`;
+              ]]]
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 0px
+                - padding: 12px
+              label:
+                - justify-self: start
+                - text-align: left
+                - font-size: 13px
+                - white-space: pre-wrap
+          - type: custom:button-card
+            entity: sensor.lataus_suunnitelma_lammitin
+            show_name: false
+            show_label: true
+            show_icon: false
+            label: |
+              [[[
+                const jaksot = entity.attributes.jaksot;
+                if (!jaksot || jaksot.length === 0) return "Ei aktiivista lämmitystä";
+                const kaikkiaan = jaksot.filter(j => j.ladataanko === 'KYLLÄ').length;
+                const tehot_str = states['input_text.lataus_tehot_luonnos_v2'].state;
+                const teho_lista = tehot_str && tehot_str !== "" ? tehot_str.split(',') : [];
+                const valmiina = teho_lista.filter(t => parseFloat(t) > 0).length;
+                const prosentti = kaikkiaan > 0 ? Math.min(100, Math.round((valmiina / kaikkiaan) * 100)) : 0;
+                return `📈 Lämmityksen edistyminen: ${valmiina} / ${kaikkiaan} jaksoa (${prosentti}%)`;
+              ]]]
+            custom_fields:
+              bar: |
+                [[[
+                  const jaksot = entity.attributes.jaksot;
+                  if (!jaksot || jaksot.length === 0) return "";
+                  const kaikkiaan = jaksot.filter(j => j.ladataanko === 'KYLLÄ').length;
+                  const tehot_str = states['input_text.lataus_tehot_luonnos_v2'].state;
+                  const teho_lista = tehot_str && tehot_str !== "" ? tehot_str.split(',') : [];
+                  const valmiina = teho_lista.filter(t => parseFloat(t) > 0).length;
+                  const prosentti = kaikkiaan > 0 ? Math.min(100, Math.round((valmiina / kaikkiaan) * 100)) : 0;
+                  return `
+                    <div style="background-color: #1a1a1a; border-radius: 10px; height: 12px; width: 100%; border: 1px solid #444; overflow: hidden; margin-top: 8px;">
+                      <div style="background-color: #4CAF50; width: ${prosentti}%; height: 100%; transition: width 0.5s ease-in-out;"></div>
+                    </div>
+                  `;
+                ]]]
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 0px 0px 10px 10px
+                - padding: 12px
+                - padding-top: 0px
+              label:
+                - justify-self: start
+                - font-size: 12px
+                - color: '#aaaaaa'
+              custom_fields:
+                bar:
+                  - width: 100%
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: 🚗 Sähköauto Yhteensä
+                label: |
+                  [[[ 
+                    const kwh = states['sensor.lataushistoria_sahkoauto'].attributes.kaikki_kWh || 0;
+                    const lataukset = states['sensor.lataushistoria_sahkoauto'].attributes.lataukset || [];
+                    let eur = 0;
+                    lataukset.forEach(x => { eur += parseFloat(x.eur || 0); });
+                    return `${parseFloat(kwh).toFixed(1).replace('.', ',')} kWh\n${eur.toFixed(2).replace('.', ',')} €`;
+                  ]]]
+                show_label: true
+                styles:
+                  card:
+                    - background-color: '#1c1c1c'
+                    - border-radius: 12px 0px 0px 12px
+                    - padding: 10px
+                  name:
+                    - font-size: 12px
+                    - font-weight: bold
+                    - justify-self: start
+                  label:
+                    - font-size: 14px
+                    - font-weight: bold
+                    - justify-self: start
+                    - color: '#2196f3'
+                    - white-space: pre-wrap
+                    - text-align: left
+              - type: custom:button-card
+                name: 🔥 Lämmitin Yhteensä
+                label: |
+                  [[[ 
+                    const kwh = states['sensor.lataushistoria_lammitin_oikeat'].attributes.kaikki_kWh || 0;
+                    const lataukset = states['sensor.lataushistoria_lammitin_oikeat'].attributes.lataukset || [];
+                    let eur = 0;
+                    lataukset.forEach(x => { eur += parseFloat(x.eur || 0); });
+                    return `${parseFloat(kwh).toFixed(1).replace('.', ',')} kWh\n${eur.toFixed(2).replace('.', ',')} €`;
+                  ]]]
+                show_label: true
+                styles:
+                  card:
+                    - background-color: '#1c1c1c'
+                    - border-radius: 0px 12px 12px 0px
+                    - padding: 10px
+                    - border-left: 1px solid
+                  name:
+                    - font-size: 12px
+                    - font-weight: bold
+                    - justify-self: start
+                  label:
+                    - font-size: 14px
+                    - font-weight: bold
+                    - justify-self: start
+                    - color: '#4caf50'
+                    - white-space: pre-wrap
+                    - text-align: left
+          - type: custom:flex-table-card
+            entities:
+              - sensor.lataushistoria_sahkoauto
+            header: 🚗 Sähköauton toteutuneet lataukset
+            clickable: false
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 12px
+                - margin-top: 8px
+            columns:
+              - name: Aloitusaika
+                data: lataukset
+                modify: x.aloitus
+              - name: Päättymisaika
+                data: lataukset
+                modify: x.lopetus
+              - name: kWh
+                data: lataukset
+                modify: parseFloat(x.kWh).toFixed(1).replace('.',',')
+                align: right
+              - name: €
+                data: lataukset
+                modify: parseFloat(x.eur).toFixed(2).replace('.',',')
+                align: right
+          - type: custom:flex-table-card
+            entities:
+              - sensor.lataushistoria_lammitin_oikeat
+            header: 🔥 Lämmittimen toteutuneet jaksot
+            clickable: false
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 12px
+                - margin-top: 8px
+            columns:
+              - name: Aloitusaika
+                data: lataukset
+                modify: x.aloitus
+              - name: Päättymisaika
+                data: lataukset
+                modify: x.lopetus
+              - name: kWh
+                data: lataukset
+                modify: parseFloat(x.kWh).toFixed(1).replace('.',',')
+                align: right
+              - name: €
+                data: lataukset
+                modify: parseFloat(x.eur).toFixed(2).replace('.',',')
+                align: right
+      - type: custom:config-template-card
+        entities:
+          - sensor.nordpool_yhdistetty_master
+          - input_select.graafi_aikavali
+        card:
+          type: custom:apexcharts-card
+          graph_span: ${states['input_select.graafi_aikavali'].state}
+          span:
+            start: >-
+              ${states['input_select.graafi_aikavali'].state === '48h' ? 'day' :
+              'hour'}
+            offset: +0h
+          header:
+            show: true
+            title: Yhdistetty ohjausnäkymä
+            show_states: false
+          now:
+            show: true
+            label: Nyt
+          series:
+            - entity: sensor.nordpool_yhdistetty_master
+              type: column
+              data_generator: |
+                const data = entity.attributes.raw_today_and_tomorrow;
+                if (!data) return [];
+                const startOfDay = new Date();
+                startOfDay.setHours(0, 0, 0, 0);
+                return data.map((entry) => {
+                  return {
+                    x: startOfDay.getTime() + (entry.org * 15 * 60 * 1000),
+                    y: entry.val,
+                    fillColor: entry.color
+                  };
+                });
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            entity: sensor.sahkoauto_saasto_kuluva_kuukausi
+            show_name: true
+            name: Auto säästänyt
+            show_label: true
+            label: tässä kuussa
+            show_state: true
+            show_icon: true
+            icon: mdi:piggy-bank
+            styles:
+              card:
+                - padding: 12px
+                - background-color: '#1c1c1c'
+                - border-radius: 12px
+                - height: 85px
+              grid:
+                - grid-template-areas: '''i n'' ''i s'' ''i l'''
+                - grid-template-columns: 40px 1fr
+                - grid-template-rows: auto auto auto
+              icon:
+                - color: '#2196F3'
+                - width: 30px
+                - justify-self: center
+              name:
+                - font-size: 11px
+                - color: '#aaaaaa'
+                - justify-self: start
+                - font-weight: bold
+              state:
+                - font-size: 18px
+                - font-weight: bold
+                - color: '#ffffff'
+                - justify-self: start
+              label:
+                - font-size: 10px
+                - color: '#666666'
+                - justify-self: start
+          - type: custom:button-card
+            entity: sensor.lammitin_saasto_kuluva_kuukausi
+            show_name: true
+            name: Lämmitin säästänyt
+            show_label: true
+            label: tässä kuussa
+            show_state: true
+            show_icon: true
+            icon: mdi:piggy-bank
+            styles:
+              card:
+                - padding: 12px
+                - background-color: '#1c1c1c'
+                - border-radius: 12px
+                - height: 85px
+              grid:
+                - grid-template-areas: '''i n'' ''i s'' ''i l'''
+                - grid-template-columns: 40px 1fr
+                - grid-template-rows: auto auto auto
+              icon:
+                - color: '#4CAF50'
+                - width: 30px
+                - justify-self: center
+              name:
+                - font-size: 11px
+                - color: '#aaaaaa'
+                - justify-self: start
+                - font-weight: bold
+              state:
+                - font-size: 18px
+                - font-weight: bold
+                - color: '#ffffff'
+                - justify-self: start
+              label:
+                - font-size: 10px
+                - color: '#666666'
+                - justify-self: start
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: 🚗 Sähköauto Simulaatio Yhteensä
+                label: |
+                  [[[ 
+                    const kwh = states['sensor.lataushistoria_sahkoauto_simulaatio'].attributes.kaikki_kWh || 0;
+                    const lataukset = states['sensor.lataushistoria_sahkoauto_simulaatio'].attributes.lataukset || [];
+                    let eur = 0;
+                    lataukset.forEach(x => { eur += parseFloat(x.eur || 0); });
+                    return `${parseFloat(kwh).toFixed(1).replace('.', ',')} kWh\n${eur.toFixed(2).replace('.', ',')} €`;
+                  ]]]
+                show_label: true
+                styles:
+                  card:
+                    - background-color: '#1c1c1c'
+                    - border-radius: 12px 0px 0px 12px
+                    - padding: 10px
+                  name:
+                    - font-size: 12px
+                    - font-weight: bold
+                    - justify-self: start
+                  label:
+                    - font-size: 14px
+                    - font-weight: bold
+                    - justify-self: start
+                    - color: '#2196f3'
+                    - white-space: pre-wrap
+                    - text-align: left
+              - type: custom:button-card
+                name: 🔥 Lämmitin Yhteensä
+                label: |
+                  [[[ 
+                    const kwh = states['sensor.lataushistoria_lammitin_simulaatio'].attributes.kaikki_kWh || 0;
+                    const lataukset = states['sensor.lataushistoria_lammitin_simulaatio'].attributes.lataukset || [];
+                    let eur = 0;
+                    lataukset.forEach(x => { eur += parseFloat(x.eur || 0); });
+                    return `${parseFloat(kwh).toFixed(1).replace('.', ',')} kWh\n${eur.toFixed(2).replace('.', ',')} €`;
+                  ]]]
+                show_label: true
+                styles:
+                  card:
+                    - background-color: '#1c1c1c'
+                    - border-radius: 0px 12px 12px 0px
+                    - padding: 10px
+                    - border-left: 1px solid
+                  name:
+                    - font-size: 12px
+                    - font-weight: bold
+                    - justify-self: start
+                  label:
+                    - font-size: 14px
+                    - font-weight: bold
+                    - justify-self: start
+                    - color: '#4caf50'
+                    - white-space: pre-wrap
+                    - text-align: left
+          - type: custom:flex-table-card
+            entities:
+              - sensor.lataushistoria_sahkoauto_simulaatio
+            header: 🚗 Sähköauton sim toteutuneet lataukset
+            clickable: false
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 12px
+                - margin-top: 8px
+            columns:
+              - name: Aloitusaika
+                data: lataukset
+                modify: x.aloitus
+              - name: Päättymisaika
+                data: lataukset
+                modify: x.lopetus
+              - name: kWh
+                data: lataukset
+                modify: parseFloat(x.kWh).toFixed(1).replace('.',',')
+                align: right
+              - name: €
+                data: lataukset
+                modify: parseFloat(x.eur).toFixed(2).replace('.',',')
+                align: right
+          - type: custom:flex-table-card
+            entities:
+              - sensor.lataushistoria_lammitin_simulaatio
+            header: 🔥 Lämmittimen sim toteutuneet jaksot
+            clickable: false
+            styles:
+              card:
+                - background-color: '#1c1c1c'
+                - border-radius: 12px
+                - margin-top: 8px
+            columns:
+              - name: Aloitusaika
+                data: lataukset
+                modify: x.aloitus
+              - name: Päättymisaika
+                data: lataukset
+                modify: x.lopetus
+              - name: kWh
+                data: lataukset
+                modify: parseFloat(x.kWh).toFixed(1).replace('.',',')
+                align: right
+              - name: €
+                data: lataukset
+                modify: parseFloat(x.eur).toFixed(2).replace('.',',')
+                align: right

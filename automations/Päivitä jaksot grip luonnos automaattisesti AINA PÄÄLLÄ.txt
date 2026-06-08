@@ -1,0 +1,11 @@
+alias: Päivitä jaksot grip luonnos automaattisesti AINA PÄÄLLÄ
+description: Päivittää siniset napit heti kun kestoa tai valmisaikaa muutetaan
+triggers:
+  - trigger: state
+    entity_id:
+      - input_number.lataus_kesto_jaksot
+      - input_datetime.lataus_valmis_klo
+      - input_select.lataus_paiva
+actions:
+  - action: script.laske_latausikkuna
+mode: restart

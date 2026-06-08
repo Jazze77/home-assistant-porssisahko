@@ -1,0 +1,988 @@
+button_card_templates:
+  aika_saato_tunnit:
+    aspect_ratio: 1.5/1
+    show_label: true
+    show_name: true
+    styles:
+      card:
+        - background-color: '#2c2c2c'
+        - border-radius: 10px
+        - padding: 5px
+      grid:
+        - grid-template-areas: '"n apit" "l apit"'
+        - grid-template-columns: 1fr 45px
+        - grid-template-rows: auto auto
+      name:
+        - font-size: 11px
+        - color: '#aaaaaa'
+        - justify-self: start
+        - font-weight: bold
+      label:
+        - font-size: 26px
+        - font-weight: bold
+        - color: white
+        - justify-self: start
+      custom_fields:
+        apit:
+          - align-self: center
+          - justify-self: center
+    label: |
+      [[[ 
+        if (!variables || !variables.entity_id) return '00';
+        const s = states[variables.entity_id];
+        if (!s) return '00';
+        if (variables.is_kesto) {
+          const tunnit = Math.floor(parseInt(s.state) * 15 / 60);
+          return tunnit.toString().padStart(2, '0');
+        }
+        return s.attributes.hour ? s.attributes.hour.toString().padStart(2, '0') : '00';
+      ]]]
+    custom_fields:
+      apit:
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:button-card
+              icon: mdi:plus
+              styles:
+                card:
+                  - height: 35px
+                  - width: 40px
+                  - background-color: '#3a3a3a'
+                  - border-radius: 5px
+                  - margin-bottom: 2px
+              tap_action:
+                action: perform-action
+                perform_action: '[[[ return variables.script_plus; ]]]'
+                data:
+                  muutos: 1
+            - type: custom:button-card
+              icon: mdi:minus
+              styles:
+                card:
+                  - height: 35px
+                  - width: 40px
+                  - background-color: '#3a3a3a'
+                  - border-radius: 5px
+              tap_action:
+                action: perform-action
+                perform_action: '[[[ return variables.script_minus; ]]]'
+                data:
+                  muutos: -1
+  aika_saato_minuutit:
+    aspect_ratio: 1.5/1
+    show_label: true
+    show_name: true
+    styles:
+      card:
+        - background-color: '#2c2c2c'
+        - border-radius: 10px
+        - padding: 5px
+      grid:
+        - grid-template-areas: '"n apit" "l apit"'
+        - grid-template-columns: 1fr 45px
+        - grid-template-rows: auto auto
+      name:
+        - font-size: 11px
+        - color: '#aaaaaa'
+        - justify-self: start
+        - font-weight: bold
+      label:
+        - font-size: 26px
+        - font-weight: bold
+        - color: white
+        - justify-self: start
+      custom_fields:
+        apit:
+          - align-self: center
+          - justify-self: center
+    label: |
+      [[[ 
+        if (!variables || !variables.entity_id) return '00';
+        const s = states[variables.entity_id];
+        if (!s) return '00';
+        if (variables.is_kesto) {
+          const minuutit = (parseInt(s.state) * 15) % 60;
+          return minuutit.toString().padStart(2, '0');
+        }
+        return s.attributes.minute ? s.attributes.minute.toString().padStart(2, '0') : '00';
+      ]]]
+    custom_fields:
+      apit:
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:button-card
+              icon: mdi:plus
+              styles:
+                card:
+                  - height: 35px
+                  - width: 40px
+                  - background-color: '#3a3a3a'
+                  - border-radius: 5px
+                  - margin-bottom: 2px
+              tap_action:
+                action: perform-action
+                perform_action: '[[[ return variables.script_plus; ]]]'
+                data:
+                  muutos: 15
+            - type: custom:button-card
+              icon: mdi:minus
+              styles:
+                card:
+                  - height: 35px
+                  - width: 40px
+                  - background-color: '#3a3a3a'
+                  - border-radius: 5px
+              tap_action:
+                action: perform-action
+                perform_action: '[[[ return variables.script_minus; ]]]'
+                data:
+                  muutos: -15
+  jakso_nappi_v2:
+    aspect_ratio: 1.7/1
+    entity: input_text.valitut_jaksot_grid_v2
+    show_name: true
+    show_label: true
+    styles:
+      card:
+        - font-size: 9px
+        - padding: 2px
+        - border: |
+            [[[ 
+              const nyt = new Date();
+              const nykyinen_id = (nyt.getHours() * 4) + Math.floor(nyt.getMinutes() / 15);
+              const s_grid = states['input_text.valitut_jaksot_grid_v2'].state;
+              const s_luonnos = states['input_text.valitut_jaksot_luonnos_v2'].state;
+              const valitut = (s_grid + ',' + s_luonnos).split(',').filter(x => x !== "");
+              const is_past = variables.id < nykyinen_id;
+              return (valitut.includes(variables.id.toString()) && !is_past) ? '2px solid white' : 'none';
+            ]]]
+        - box-shadow: |
+            [[[ 
+              const nyt = new Date();
+              const nykyinen_id = (nyt.getHours() * 4) + Math.floor(nyt.getMinutes() / 15);
+              const s_grid = states['input_text.valitut_jaksot_grid_v2'].state;
+              const s_luonnos = states['input_text.valitut_jaksot_luonnos_v2'].state;
+              const valitut = (s_grid + ',' + s_luonnos).split(',').filter(x => x !== "");
+              const is_past = variables.id < nykyinen_id;
+              return (valitut.includes(variables.id.toString()) && !is_past) ? '0px 0px 8px white' : 'none';
+            ]]]
+        - background-color: |
+            [[[ 
+              const nyt = new Date();
+              const nykyinen_id = (nyt.getHours() * 4) + Math.floor(nyt.getMinutes() / 15);
+              
+              const s_grid = states['input_text.valitut_jaksot_grid_v2'].state;
+              const s_luonnos = states['input_text.valitut_jaksot_luonnos_v2'].state;
+              const valitut = (s_grid + ',' + s_luonnos).split(',').filter(x => x !== "");
+              
+              const is_past = variables.id < nykyinen_id;
+              
+              const valmis_klo = states['input_datetime.lataus_valmis_klo_v2'].state.split(':');
+              const base = (parseInt(valmis_klo[0]) * 4) + Math.floor(parseInt(valmis_klo[1]) / 15);
+              const takaraja = states['input_select.lataus_paiva_v2'].state === 'Huomenna' ? base + 96 : base;
+              
+              const is_after_deadline = variables.id > takaraja;
+
+              if (is_past) return '#1a1a1a'; 
+              if (is_after_deadline) return '#000000';
+              if (valitut.includes(variables.id.toString())) return '#1976D2'; 
+              return variables.color; 
+            ]]]
+        - opacity: |
+            [[[ 
+              const nyt = new Date();
+              const nykyinen_id = (nyt.getHours() * 4) + Math.floor(nyt.getMinutes() / 15);
+              const valmis_klo = states['input_datetime.lataus_valmis_klo_v2'].state.split(':');
+              const base = (parseInt(valmis_klo[0]) * 4) + Math.floor(parseInt(valmis_klo[1]) / 15);
+              const takaraja = states['input_select.lataus_paiva_v2'].state === 'Huomenna' ? base + 96 : base;
+              
+              return (variables.id < nykyinen_id || variables.id > takaraja) ? '0.4' : '1.0';
+            ]]]
+        - pointer-events: |
+            [[[ 
+              const nyt = new Date();
+              const nykyinen_id = (nyt.getHours() * 4) + Math.floor(nyt.getMinutes() / 15);
+              const valmis_klo = states['input_datetime.lataus_valmis_klo_v2'].state.split(':');
+              const base = (parseInt(valmis_klo[0]) * 4) + Math.floor(parseInt(valmis_klo[1]) / 15);
+              const takaraja = states['input_select.lataus_paiva_v2'].state === 'Huomenna' ? base + 96 : base;
+              
+              return (variables.id < nykyinen_id || variables.id > takaraja) ? 'none' : 'auto';
+            ]]]
+        - z-index: |
+            [[[ 
+              const s_grid = states['input_text.valitut_jaksot_grid_v2'].state;
+              const s_luonnos = states['input_text.valitut_jaksot_luonnos_v2'].state;
+              const valitut = (s_grid + ',' + s_luonnos).split(',').filter(x => x !== "");
+              return valitut.includes(variables.id.toString()) ? '10' : '1';
+            ]]]
+      name:
+        - font-weight: bold
+        - justify-self: start
+        - color: |
+            [[[ 
+              const nyt = new Date();
+              const nykyinen_id = (nyt.getHours() * 4) + Math.floor(nyt.getMinutes() / 15);
+              return (variables.id < nykyinen_id) ? '#666666' : 'white';
+            ]]]
+      label:
+        - justify-self: start
+        - font-size: 8px
+        - color: |
+            [[[ 
+              const s_grid = states['input_text.valitut_jaksot_grid_v2'].state;
+              const s_luonnos = states['input_text.valitut_jaksot_luonnos_v2'].state;
+              const valitut = (s_grid + ',' + s_luonnos).split(',').filter(x => x !== "");
+              return valitut.includes(variables.id.toString()) ? 'white' : '#aaaaaa';
+            ]]]
+    tap_action:
+      action: call-service
+      service: script.toggle_jakso_grid_v2
+      service_data:
+        jakso_id: '[[[ return variables.id ]]]'
+  paiva_valinta_v2:
+    aspect_ratio: 3/1
+    show_name: true
+    styles:
+      card:
+        - font-size: 14px
+        - font-weight: bold
+        - border-radius: 10px
+        - background-color: |
+            [[[ 
+              return (states['input_select.lataus_paiva_v2'].state === variables.paiva) ? '#1976D2' : '#2c2c2c'; 
+            ]]]
+        - border: |
+            [[[ 
+              return (states['input_select.lataus_paiva_v2'].state === variables.paiva) ? '2px solid white' : '1px solid #444'; 
+            ]]]
+      name:
+        - color: white
+    tap_action:
+      action: call-service
+      service: input_select.select_option
+      service_data:
+        entity_id: input_select.lataus_paiva_v2
+        option: '[[[ return variables.paiva ]]]'
+views:
+  - path: default_view
+    title: Home
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                template: paiva_valinta_v2
+                name: TÄNÄÄN
+                variables:
+                  paiva: Tänään
+                show_label: true
+                label: |
+                  [[[ 
+                    const d = new Date();
+                    return d.getDate() + "." + (d.getMonth() + 1) + ".";
+                  ]]]
+                styles:
+                  card:
+                    - height: 60px
+                  label:
+                    - font-size: 10px
+                    - color: '#aaaaaa'
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-rows: 1fr 1fr
+              - type: custom:button-card
+                template: paiva_valinta_v2
+                name: >
+                  [[[ return
+                  (states['sensor.nordpool_oma'].attributes.tomorrow_valid ===
+                  false) ? "" : "HUOMENNA"; ]]]
+                variables:
+                  paiva: Huomenna
+                lock:
+                  enabled: >-
+                    [[[ return
+                    states['sensor.nordpool_oma'].attributes.tomorrow_valid ===
+                    false ]]]
+                show_label: true
+                label: |
+                  [[[ 
+                    if (states['sensor.nordpool_oma'].attributes.tomorrow_valid === false) {
+                      return "Hinnat tulevat noin klo 14:15";
+                    }
+                    const d = new Date();
+                    d.setDate(d.getDate() + 1);
+                    return d.getDate() + "." + (d.getMonth() + 1) + ".";
+                  ]]]
+                styles:
+                  card:
+                    - height: 60px
+                  label:
+                    - font-size: 10px
+                    - color: '#aaaaaa'
+          - type: vertical-stack
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: custom:button-card
+                    template: aika_saato_tunnit
+                    name: TUNNIT
+                    variables:
+                      entity_id: input_datetime.lataus_valmis_klo_v2
+                      script_plus: script.muuta_lataus_valmis_tunnit_v2
+                      script_minus: script.muuta_lataus_valmis_tunnit_v2
+                      is_kesto: false
+                  - type: custom:button-card
+                    template: aika_saato_minuutit
+                    name: MINUUTIT
+                    variables:
+                      entity_id: input_datetime.lataus_valmis_klo_v2
+                      script_plus: script.muuta_lataus_valmis_minuutit_v2
+                      script_minus: script.muuta_lataus_valmis_minuutit_v2
+                      is_kesto: false
+              - type: custom:button-card
+                name: |
+                  [[[
+                    const klo = states['input_datetime.lataus_valmis_klo_v2'].state;
+                    const paiva = states['input_select.lataus_paiva_v2'].state;
+                    
+                    let [h, m] = klo.split(':').map(Number);
+                    
+                    // Lisätään 14 minuuttia (sekunnit lisätään tekstinä perään)
+                    m += 14;
+                    if (m >= 60) {
+                      m -= 60;
+                      h += 1;
+                    }
+                    if (h >= 24) h = 0;
+
+                    const uusi_klo = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0') + ':59';
+                    return `Lataus valmis ${paiva.toLowerCase()} klo ${uusi_klo}`;
+                  ]]]
+                styles:
+                  card:
+                    - height: 40px
+                    - background-color: '#1c1c1c'
+                    - border-radius: 10px
+                    - margin-top: 5px
+                  name:
+                    - font-size: 13px
+                    - font-weight: bold
+                    - color: '#4CAF50'
+          - type: vertical-stack
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: custom:button-card
+                    template: aika_saato_tunnit
+                    name: KESTO H
+                    variables:
+                      entity_id: input_number.lataus_kesto_jaksot_v2
+                      script_plus: script.muuta_latauskestoa_tunnit_v2
+                      script_minus: script.muuta_latauskestoa_tunnit_v2
+                      is_kesto: true
+                  - type: custom:button-card
+                    template: aika_saato_minuutit
+                    name: KESTO MIN
+                    variables:
+                      entity_id: input_number.lataus_kesto_jaksot_v2
+                      script_plus: script.muuta_latauskestoa_minuutit_v2
+                      script_minus: script.muuta_latauskestoa_minuutit_v2
+                      is_kesto: true
+              - type: custom:button-card
+                name: |
+                  [[[ 
+                    const jaksot = states['input_number.lataus_kesto_jaksot_v2'].state;
+                    const h = Math.floor(jaksot / 4);
+                    const min = (jaksot % 4) * 15;
+                    return `Halvimmat jaksot kesto yhteensä yhteensä: ${h} h ${min} min`;
+                  ]]]
+                styles:
+                  card:
+                    - height: 40px
+                    - background-color: '#1c1c1c'
+                    - border-radius: 10px
+                    - margin-top: 5px
+                  name:
+                    - font-size: 14px
+                    - font-weight: bold
+                    - color: '#1976D2'
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: TYHJENNÄ VALINNAT
+                icon: mdi:trash-can-outline
+                styles:
+                  card:
+                    - height: 80px
+                    - font-size: 11px
+                    - background-color: '#f57c00'
+                lock:
+                  enabled: >-
+                    [[[ return
+                    states['automation.latauksen_simulaatio_lammitin'].state ===
+                    'on'; ]]]
+                tap_action:
+                  action: call-service
+                  service: script.tyhjenna_kaikki_valinnat_v2
+                  confirmation:
+                    text: Haluatko varmasti nollata kaikki valinnat ja keston?
+              - type: custom:button-card
+                name: TALLENNA JA OTA KÄYTTÖÖN
+                icon: mdi:content-save
+                styles:
+                  card:
+                    - height: 80px
+                    - background-color: >
+                        [[[ return
+                        states['binary_sensor.lataussuunnitelma_muuttunut_v2'].state
+                        === 'on' ? '#2e7d32' : '#2c2c2c'; ]]]
+                    - color: >
+                        [[[ return
+                        states['binary_sensor.lataussuunnitelma_muuttunut_v2'].state
+                        === 'on' ? 'white' : '#666'; ]]]
+                tap_action:
+                  action: call-service
+                  service: script.tallenna_valinnat_v2
+              - type: custom:button-card
+                name: |
+                  [[[
+                    return states['automation.latauksen_simulaatio_lammitin'].state === 'on' 
+                    ? 'KESKEYTÄ SIMULAATIO' 
+                    : 'ALOITA SIMULAATIO';
+                  ]]]
+                icon: |
+                  [[[
+                    return states['automation.latauksen_simulaatio_lammitin'].state === 'on' 
+                    ? 'mdi:stop' 
+                    : 'mdi:play';
+                  ]]]
+                styles:
+                  card:
+                    - height: 80px
+                    - font-size: 14px
+                    - font-weight: bold
+                    - background-color: |
+                        [[[ 
+                          const muuttunut = states['binary_sensor.lataussuunnitelma_muuttunut_v2'].state === 'on';
+                          const kaynnissa = states['automation.latauksen_simulaatio_lammitin'].state === 'on';
+                          if (kaynnissa) return '#c62828';
+                          return muuttunut ? '#2c2c2c' : '#2e7d32';
+                        ]]]
+                    - color: white
+                lock:
+                  enabled: |
+                    [[[ 
+                      return states['binary_sensor.lataussuunnitelma_muuttunut_v2'].state === 'on' && 
+                             states['automation.latauksen_simulaatio_lammitin'].state === 'off';
+                    ]]]
+                  text: Tallenna ensin
+                tap_action:
+                  action: call-service
+                  service: |
+                    [[[
+                      return states['automation.latauksen_simulaatio_lammitin'].state === 'on' 
+                      ? 'script.keskeyta_simulaatio_simple' 
+                      : 'script.kaynnista_simulaatio_lammitin';
+                    ]]]
+              - type: custom:button-card
+                name: |
+                  [[[
+                    return states['automation.reaaliaikainen_lataus_lammitin'].state === 'on' 
+                    ? 'KESKEYTÄ LATAUS' 
+                    : 'ALOITA LATAUS';
+                  ]]]
+                icon: |
+                  [[[
+                    return states['automation.reaaliaikainen_lataus_lammitin'].state === 'on' 
+                    ? 'mdi:battery-off' 
+                    : 'mdi:battery-charging-100';
+                  ]]]
+                styles:
+                  card:
+                    - height: 80px
+                    - font-size: 14px
+                    - font-weight: bold
+                    - background-color: |
+                        [[[ 
+                          const muuttunut = states['binary_sensor.lataussuunnitelma_muuttunut_v2'].state === 'on';
+                          const kaynnissa = states['automation.reaaliaikainen_lataus_lammitin'].state === 'on';
+                          if (kaynnissa) return '#c62828'; 
+                          return muuttunut ? '#2c2c2c' : '#2e7d32'; 
+                        ]]]
+                    - color: white
+                lock:
+                  duration: 0.1
+                  enabled: |
+                    [[[ 
+                      return states['binary_sensor.lataussuunnitelma_muuttunut_v2'].state === 'on' && 
+                             states['automation.reaaliaikainen_lataus_lammitin'].state === 'off';
+                    ]]]
+                  text: Tallenna ensin
+                tap_action:
+                  action: call-service
+                  service: |
+                    [[[
+                      return states['automation.reaaliaikainen_lataus_lammitin'].state === 'on' 
+                      ? 'script.keskeyta_lataus_v2' 
+                      : 'script.kaynnista_lataus_lammitin'; 
+                    ]]]
+          - type: entities
+            entities:
+              - input_text.valitut_jaksot_aktiivinen_v2
+              - input_text.valitut_jaksot_luonnos_v2
+              - input_text.valitut_jaksot_grid_v2
+              - input_text.lataus_suunnitelman_jaksot_v2
+              - sensor.wiz_socket_900c4e_power
+              - entity: sensor.wiz_pistoke_15min_keskiarvo
+                name: 15 min keskiteho v22 v2
+                icon: mdi:calculator
+              - sensor.wiz_socket_98d017_power
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: 12h
+                styles:
+                  card:
+                    - height: 40px
+                    - font-size: 14px
+                    - background-color: >
+                        [[[ return states['input_select.graafi_aikavali'].state
+                        === '12h' ? '#1976D2' : '#1a1a1a'; ]]]
+                    - color: white
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.graafi_aikavali
+                    option: 12h
+              - type: custom:button-card
+                name: 18h
+                styles:
+                  card:
+                    - height: 40px
+                    - font-size: 14px
+                    - background-color: >
+                        [[[ return states['input_select.graafi_aikavali'].state
+                        === '18h' ? '#1976D2' : '#1a1a1a'; ]]]
+                    - color: white
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.graafi_aikavali
+                    option: 18h
+              - type: custom:button-card
+                name: 24h
+                styles:
+                  card:
+                    - height: 40px
+                    - font-size: 14px
+                    - background-color: >
+                        [[[ return states['input_select.graafi_aikavali'].state
+                        === '24h' ? '#1976D2' : '#1a1a1a'; ]]]
+                    - color: white
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.graafi_aikavali
+                    option: 24h
+              - type: custom:button-card
+                name: 48h
+                styles:
+                  card:
+                    - height: 40px
+                    - font-size: 14px
+                    - background-color: >
+                        [[[ return states['input_select.graafi_aikavali'].state
+                        === '48h' ? '#1976D2' : '#1a1a1a'; ]]]
+                    - color: white
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  service_data:
+                    entity_id: input_select.graafi_aikavali
+                    option: 48h
+          - type: custom:config-template-card
+            entities:
+              - sensor.nordpool_oma_lammitin
+              - input_select.graafi_aikavali
+            card:
+              type: custom:apexcharts-card
+              graph_span: ${states['input_select.graafi_aikavali'].state}
+              span:
+                start: >-
+                  ${states['input_select.graafi_aikavali'].state === '48h' ?
+                  'day' : 'hour'}
+                offset: +0h
+              header:
+                show: false
+                show_states: true
+              now:
+                show: true
+                label: Nyt
+              series:
+                - entity: sensor.nordpool_oma_lammitin
+                  type: column
+                  data_generator: |
+                    const data = entity.attributes.raw_today_and_tomorrow;
+                    if (!data) return [];
+                    const startOfDay = new Date();
+                    startOfDay.setHours(0, 0, 0, 0);
+                    return data.map((entry) => {
+                      return {
+                        x: startOfDay.getTime() + (entry.org * 15 * 60 * 1000),
+                        y: entry.val,
+                        fillColor: entry.color
+                      };
+                    });
+          - type: custom:button-card
+            entity: sensor.valitut_jaksot_kpl_v2
+            name: >
+              [[[ return "Valittu: " + entity.state + " jaksoa (" +
+              entity.attributes.yhteensa_kesto_teksti + ")" ]]]
+            styles:
+              card:
+                - height: 40px
+                - background-color: '#1c1c1c'
+                - border-radius: 10px
+              name:
+                - font-size: 14px
+                - color: '#2196F3'
+                - font-weight: bold
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 8
+              square: false
+            card_param: cards
+            filter:
+              template: >
+                {% set hinnat = state_attr('sensor.nordpool_oma_lammitin',
+                'raw_today_and_tomorrow') %} {% set current_org = (now().hour *
+                4) + (now().minute // 15) %} {% set row_threshold = (current_org
+                // 8) * 8 %}
+
+                {%- if hinnat is iterable -%}
+                  {%- set ns = namespace(cards=[]) -%}
+                  {%- for h in hinnat -%}
+                    {%- if h.org >= row_threshold -%}
+                      {%- set t = ((h.org % 96) // 4) | int -%}
+                      {%- set m = ((h.org % 4) * 15) | int -%}
+                      {%- set kello = '%02d:%02d' | format(t, m) -%}
+                      
+                      {%- set card = {
+                        "type": "custom:button-card",
+                        "template": "jakso_nappi_v2",
+                        "name": kello,
+                        "label": (h.val | round(3) | string) ~ ' snt',
+                        "variables": {
+                          "id": h.org,
+                          "color": h.color
+                        }
+                      } -%}
+                      {%- set ns.cards = ns.cards + [card] -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {{ ns.cards | to_json }}
+                {%- else -%}
+                  []
+                {%- endif -%}
+            show_empty: false
+      - type: custom:button-card
+        entity: sensor.lataus_suunnitelma_lammitin
+        show_name: true
+        name: Lämmityksen edistyminen
+        show_label: true
+        label: |
+          [[[
+            const jaksot = entity.attributes.jaksot;
+            if (!jaksot || jaksot.length === 0) return "Ei aktiivista lämmitystä";
+            
+            // Lasketaan kuinka monta "KYLLÄ" -jaksoa suunnitelmassa on yhteensä
+            const kaikkiaan = jaksot.filter(j => j.ladataanko === 'KYLLÄ').length;
+            
+            // Luetaan kertyneet tehot livenä
+            const tehot_str = states['input_text.lataus_tehot_luonnos_v2'].state;
+            const teho_lista = tehot_str && tehot_str !== "" ? tehot_str.split(',') : [];
+            
+            // Lasketaan kuinka monessa suoritetussa jaksossa on todella ladattu (teho > 0)
+            const valmiina = teho_lista.filter(t => parseFloat(t) > 0).length;
+            
+            const prosentti = kaikkiaan > 0 ? Math.min(100, Math.round((valmiina / kaikkiaan) * 100)) : 0;
+            return `${valmiina} / ${kaikkiaan} latausjaksoa valmiina (${prosentti}%)`;
+          ]]]
+        custom_fields:
+          bar: |
+            [[[
+              const jaksot_data = entity.attributes.jaksot;
+              if (!jaksot_data || jaksot_data.length === 0) return "";
+              
+              const kaikkiaan = jaksot_data.filter(j => j.ladataanko === 'KYLLÄ').length;
+              
+              const tehot_str = states['input_text.lataus_tehot_luonnos_v2'].state;
+              const teho_lista = tehot_str && tehot_str !== "" ? tehot_str.split(',') : [];
+              const valmiina = teho_lista.filter(t => parseFloat(t) > 0).length;
+              
+              const prosentti = kaikkiaan > 0 ? Math.min(100, Math.round((valmiina / kaikkiaan) * 100)) : 0;
+              return `
+                <div style="background-color: #1a1a1a; border-radius: 10px; height: 12px; width: 100%; border: 1px solid #444; overflow: hidden;">
+                  <div style="background-color: #4CAF50; width: ${prosentti}%; height: 100%; transition: width 0.5s ease-in-out;"></div>
+                </div>
+              `;
+            ]]]
+        styles:
+          card:
+            - padding: 16px
+            - background-color: '#1c1c1c'
+          grid:
+            - grid-template-areas: '''n'' ''l'' ''bar'''
+            - grid-template-columns: 1fr
+            - grid-template-rows: auto auto auto
+          name:
+            - font-size: 14px
+            - font-weight: bold
+            - justify-self: start
+            - margin-bottom: 4px
+          label:
+            - font-size: 13px
+            - justify-self: start
+            - color: '#aaaaaa'
+            - margin-bottom: 12px
+          custom_fields:
+            bar:
+              - width: 100%
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                entity: sensor.lataushistoria_lammitin_oikeat
+                name: Lämmityskerrat
+                show_state: true
+                styles:
+                  card:
+                    - height: 80px
+                  state:
+                    - font-size: 20px
+                    - font-weight: bold
+              - type: custom:button-card
+                name: Yhteensä kWh
+                label: |
+                  [[[ 
+                    const kwh = states['sensor.lataushistoria_lammitin_oikeat'].attributes.kaikki_kWh;
+                    return kwh ? parseFloat(kwh).toFixed(1).replace('.', ',') + ' kWh' : '0,0 kWh';
+                  ]]]
+                show_label: true
+                styles:
+                  card:
+                    - height: 80px
+                  label:
+                    - font-size: 20px
+                    - font-weight: bold
+                    - color: '#2196f3'
+              - type: custom:button-card
+                name: Yhteensä €
+                label: |
+                  [[[ 
+                    const lataukset = states['sensor.lataushistoria_lammitin_oikeat'].attributes.lataukset;
+                    if (!lataukset || lataukset.length === 0) return '0,00 €';
+                    let summa = 0;
+                    lataukset.forEach(x => { summa += parseFloat(x.eur || 0); });
+                    return summa.toFixed(2).replace('.', ',') + ' €';
+                  ]]]
+                show_label: true
+                styles:
+                  card:
+                    - height: 80px
+                  label:
+                    - font-size: 20px
+                    - font-weight: bold
+                    - color: '#4caf50'
+          - type: custom:flex-table-card
+            entities:
+              - sensor.lataushistoria_lammitin_oikeat
+            header: Viimeisimmät todelliset lämmitykset
+            columns:
+              - name: Aloitusaika
+                data: lataukset
+                modify: x.aloitus
+              - name: Päättymisaika
+                data: lataukset
+                modify: x.lopetus
+              - name: kWh
+                data: lataukset
+                modify: parseFloat(x.kWh).toFixed(1).replace('.',',')
+                align: right
+              - name: Hinta €
+                data: lataukset
+                modify: parseFloat(x.eur).toFixed(2).replace('.',',')
+                align: right
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                entity: sensor.lataushistoria_lammitin_simulaatio
+                name: Lämmityskerrat
+                show_state: true
+                styles:
+                  card:
+                    - height: 80px
+                  state:
+                    - font-size: 20px
+                    - font-weight: bold
+              - type: custom:button-card
+                name: Yhteensä kWh
+                label: |
+                  [[[ 
+                    const kwh = states['sensor.lataushistoria_lammitin_simulaatio'].attributes.kaikki_kWh;
+                    return kwh ? parseFloat(kwh).toFixed(1).replace('.', ',') + ' kWh' : '0,0 kWh';
+                  ]]]
+                show_label: true
+                styles:
+                  card:
+                    - height: 80px
+                  label:
+                    - font-size: 20px
+                    - font-weight: bold
+                    - color: '#2196f3'
+              - type: custom:button-card
+                name: Yhteensä €
+                label: |
+                  [[[ 
+                    const lataukset = states['sensor.lataushistoria_lammitin_simulaatio'].attributes.lataukset;
+                    if (!lataukset || lataukset.length === 0) return '0,00 €';
+                    let summa = 0;
+                    lataukset.forEach(x => { summa += parseFloat(x.eur || 0); });
+                    return summa.toFixed(2).replace('.', ',') + ' €';
+                  ]]]
+                show_label: true
+                styles:
+                  card:
+                    - height: 80px
+                  label:
+                    - font-size: 20px
+                    - font-weight: bold
+                    - color: '#4caf50'
+          - type: custom:flex-table-card
+            entities:
+              - sensor.lataushistoria_lammitin_simulaatio
+            header: Viimeisimmät todelliset lämmitykset
+            columns:
+              - name: Aloitusaika
+                data: lataukset
+                modify: x.aloitus
+              - name: Päättymisaika
+                data: lataukset
+                modify: x.lopetus
+              - name: kWh
+                data: lataukset
+                modify: parseFloat(x.kWh).toFixed(1).replace('.',',')
+                align: right
+              - name: Hinta €
+                data: lataukset
+                modify: parseFloat(x.eur).toFixed(2).replace('.',',')
+                align: right
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: Latausikkunan analyysi (Livenä)
+          show_states: true
+        graph_span: 6h
+        span:
+          start: hour
+        series:
+          - entity: sensor.lataus_suunnitelma_lammitin
+            type: column
+            name: Hinta
+            color: '#ff9800'
+            data_generator: |
+              return entity.attributes.jaksot
+                .filter(j => j.teho !== "---")
+                .map(j => {
+                  const parts = j.aloitus.split(' ');
+                  const d = parts[0].split('.');
+                  const t = parts[1].split(':');
+                  const ts = new Date(d[2], d[1]-1, d[0], t[0], t[1], t[2]).getTime();
+                  return [ts, j.hinta];
+                });
+            yaxis_id: hinta
+          - entity: sensor.lataus_suunnitelma_lammitin
+            type: area
+            name: Teho (W)
+            curve: stepline
+            color: '#2196f3'
+            data_generator: |
+              return entity.attributes.jaksot
+                .filter(j => j.teho !== "---")
+                .map(j => {
+                  const parts = j.aloitus.split(' ');
+                  const d = parts[0].split('.');
+                  const t = parts[1].split(':');
+                  const ts = new Date(d[2], d[1]-1, d[0], t[0], t[1], t[2]).getTime();
+                  return [ts, j.teho === "---" ? 0 : parseFloat(j.teho)];
+                });
+            yaxis_id: teho
+        yaxis:
+          - id: hinta
+            decimals: 2
+            apex_config:
+              title:
+                text: snt/kWh
+          - id: teho
+            opposite: true
+            decimals: 0
+            apex_config:
+              title:
+                text: Watti
+      - type: vertical-stack
+        cards:
+          - type: entities
+            entities:
+              - entity: input_boolean.lammitin_lisasetukset_v2
+                name: Lämmittimen kehittyneet lisäasetukset
+                icon: mdi:cog-matrix
+            state_color: true
+          - type: conditional
+            conditions:
+              - entity: input_boolean.lammitin_lisasetukset_v2
+                state: 'on'
+            card:
+              type: vertical-stack
+              cards:
+                - type: entities
+                  title: Tehon hienosäätö
+                  show_header_toggle: false
+                  entities:
+                    - entity: input_number.lammitin_lisakuorma_v2
+                      name: Lisäkuorma / jakso
+                      icon: mdi:lightning-bolt
+                - type: entities
+                  title: Järjestelmän oletusarvot
+                  show_header_toggle: false
+                  entities:
+                    - entity: input_datetime.lammitin_oletus_aloitus_v2
+                      name: Oletus aloitusaika
+                    - entity: input_datetime.lammitin_oletus_lopetus_v2
+                      name: Oletus päättymisaika
+                    - entity: input_number.lammitin_oletus_kesto_v2
+                      name: Oletus kesto (jaksot)
+                - type: custom:button-card
+                  name: OTA OLETUSASETUKSET KÄYTTÖÖN
+                  icon: mdi:layers-triple
+                  styles:
+                    card:
+                      - height: 50px
+                      - background-color: '#4CAF50'
+                      - color: white
+                      - font-weight: bold
+                      - border-radius: 10px
+                  tap_action:
+                    action: perform-action
+                    perform_action: script.lataa_lammityksen_oletukset

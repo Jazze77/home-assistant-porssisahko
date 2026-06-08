@@ -1,0 +1,23 @@
+alias: "Nordpool: Automaattinen jaksojen haku hintojen julkaisusta AINA PÄÄLLÄ"
+description: Hakee halvimmat jaksot luonnoksiin heti, kun huomisen hinnat vahvistuvat
+triggers:
+  - trigger: state
+    entity_id: sensor.nordpool_oma
+    attribute: tomorrow_valid
+    from: false
+    to: true
+actions:
+  - action: script.laske_halvimmat_jaksot
+  - action: script.laske_halvimmat_jaksot_v2
+  - action: persistent_notification.create
+    data:
+      title: "📊 Pörssisähkö: Päivän ehdotukset valmiina"
+      message: >-
+        Huomisen pörssisähköhinnat on julkaistu ja vahvistettu (klo {{
+        now().strftime('%H:%M') }}).
+
+        Automaatti on laskenut valmiiksi ehdotukset **Sähköautolle** ja
+        **Lämmittimelle** asetettujen oletuskestojen mukaan. Käy tarkistamassa
+        ja tallentamassa jaksot Dashboardilta!
+      notification_id: nordpool_ehdotukset_valmiina
+mode: single

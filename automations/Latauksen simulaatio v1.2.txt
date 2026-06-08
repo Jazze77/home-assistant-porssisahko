@@ -1,0 +1,106 @@
+alias: Latauksen simulaatio v1.2
+description: Sähköauton simulaatio tiiviillä indeksi:teho -tallennuksella
+triggers:
+  - trigger: state
+    entity_id: automation.latauksen_simulaatio_v1_2
+    to: "on"
+actions:
+  - variables:
+      aloitus_idx: "{{ (now().hour * 4) + (now().minute // 15) }}"
+      loppu_idx: >-
+        {% set t_osat = states('input_datetime.lataus_valmis_klo').split(':') %}
+        {% set h = t_osat[0] | int(0) %}{% set m = t_osat[1] | int(0) %}  {% set
+        base = (h * 4) + (m // 15) %}  {% set aloitus = (now().hour * 4) +
+        (now().minute // 15) %}  {{ base + 96 if base < aloitus else base }}
+      kierrokset: "{{ (loppu_idx | int - aloitus_idx | int) | int + 1 }}"
+      aktiiviset_jaksot: >-
+        {{ states('input_text.valitut_jaksot_aktiivinen').split(',') |
+        map('trim') | list }}
+  - action: input_text.set_value
+    target:
+      entity_id:
+        - input_text.lataus_tehot_luonnos
+        - input_text.lataus_tehot_luonnos_part2
+    data:
+      value: ""
+  - repeat:
+      count: "{{ kierrokset }}"
+      sequence:
+        - variables:
+            curr_idx: "{{ aloitus_idx | int + repeat.index - 1 }}"
+            on_valittu: "{{ curr_idx | string in aktiiviset_jaksot }}"
+            perusteho: >-
+              {% if on_valittu %}{{ (100 + range(0, 201) | random) }}{% else
+              %}0{% endif %}
+            lisa: >-
+              {{ states('input_number.sahkoauto_lisakuorma') | float(0) if
+              (is_state('input_boolean.sahkoauto_lisasetukset', 'on') and
+              on_valittu) else 0 }}
+            teho_nyt: "{{ (perusteho | float(0) + lisa) | int }}"
+        - action: input_number.set_value
+          target:
+            entity_id: input_number.simulaatio_vaihe_idx
+          data:
+            value: "{{ curr_idx }}"
+        - action: system_log.write
+          data:
+            level: warning
+            logger: custom_components.lataus_sahkoauto
+            message: >-
+              SIMULAATIO sähköauto: Jakso {{ curr_idx }}. Pistoke: {{ 'PÄÄLLÄ'
+              if on_valittu else 'POIS' }}. Teho: {{ teho_nyt }} W.
+        - action: light.turn_on
+          target:
+            entity_id: light.hue_essential_lamp_1
+          data:
+            brightness_pct: "{{ 100 if on_valittu else 10 }}"
+        - delay:
+            seconds: 2
+        - action: input_text.set_value
+          target:
+            entity_id: >-
+              {% if states('input_text.lataus_tehot_luonnos') | length >= 245 or
+              '*' in states('input_text.lataus_tehot_luonnos') %}
+                input_text.lataus_tehot_luonnos_part2
+              {% else %}
+                input_text.lataus_tehot_luonnos
+              {% endif %}
+          data:
+            value: >-
+              {% set t1 = states('input_text.lataus_tehot_luonnos') %} {% set t2
+              = states('input_text.lataus_tehot_luonnos_part2') %} {% set
+              uusi_pari = (curr_idx | string) + ":" + (teho_nyt | string) %}
+
+              {% if t1 | length >= 245 or '*' in t1 %}
+                {# Kirjoitetaan kakkoskenttään #}
+                {% if t2 == "" %}{{ uusi_pari }}{% else %}{{ t2 ~ "," ~ uusi_pari }}{% endif %}
+              {% else %}
+                {# Kirjoitetaan ykköskenttään #}
+                {% if (t1 ~ "," ~ uusi_pari) | length >= 245 %}
+                  {# Jos tämä pari rikkoisi rajan, laitetaan loppuun tähti ja uusi pari valmiiksi kakkoskentän nollaukseen #}
+                  {{ t1 ~ ",*" }}
+                {% else %}
+                  {% if t1 == "" %}{{ uusi_pari }}{% else %}{{ t1 ~ "," ~ uusi_pari }}{% endif %}
+                {% endif %}
+              {% endif %}
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: >-
+                    {{ states('input_text.lataus_tehot_luonnos').endswith('*')
+                    and states('input_text.lataus_tehot_luonnos_part2') == '' }}
+              sequence:
+                - action: input_text.set_value
+                  target:
+                    entity_id: input_text.lataus_tehot_luonnos_part2
+                  data:
+                    value: "{{ (curr_idx | string) + ':' + (teho_nyt | string) }}"
+  - action: light.turn_off
+    target:
+      entity_id: light.hue_essential_lamp_1
+  - action: script.lataus_valmis
+  - action: automation.turn_off
+    target:
+      entity_id: automation.latauksen_simulaatio_v1_2
+mode: single
+initial_state: false
