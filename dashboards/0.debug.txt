@@ -54,6 +54,8 @@ views:
           - input_boolean.sahkoauto_lisasetukset
           - input_number.sahkoauto_lisakuorma
           - input_number.simulaatio_vaihe_idx
+          - input_text.nordpool_vari
+          - input_number.nordpool_val
         title: Helpers
       - type: grid
         square: false
