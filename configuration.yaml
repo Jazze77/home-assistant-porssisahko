@@ -878,6 +878,11 @@ input_text:
     name: "Lämmitin tehot luonnos v2 part2"
     max: 255
 
+# Lämpun värit
+  nordpool_vari:
+    name: "nordpool väri"
+    max: 100
+
 
 # --- NUMEROSÄÄTIMET (input_number) ---
 input_number:
@@ -925,6 +930,12 @@ input_number:
     max: 96
     step: 1
     unit_of_measurement: "jaksoa"
+    
+  nordpool_val:
+    name: "Nordpool arvo"
+    min: 0
+    max: 100
+    step: 1
 
 # --- AIKAVALITSIMET (input_datetime) ---
 input_datetime:
