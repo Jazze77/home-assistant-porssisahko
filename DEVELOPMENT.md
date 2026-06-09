@@ -39,10 +39,10 @@ Havaittujen ongelmien jälkeen tehtiin radikaali päätös: koko järjestelmä p
 Nykyinen järjestelmä on täysin tuotantovarma, automaattinen ja dynaaminen kokonaisuus, joka pyörii **8 automaation** voimin:
 
 ### Nyt käytössä olevat 8 automaatiota:
-1.  **Sähköauto - Reaaliaikainen lataus (v1.1):** Ohjaa fyysistä latauspistoketta sekunnilleen valitun suunnitelman mukaan.
-2.  **Sähköauto - Latauksen simulaatio (v1.2):** Mahdollistaa lataussyklien ja raportoinnin testaamisen milloin tahansa turvallisesti simuloimalla.
-3.  **Lämmitin - Reaaliaikainen lataus (v2):** Ohjaa lämmittimen etäpistorasiaa pörssihintojen mukaan.
-4.  **Lämmitin - Latauksen simulaatio (v2):** Lämmitysjärjestelmän täydellinen testaussimulaattori.
+1.  **Sähköauto - [`Reaaliaikainen lataus (v1.1)`](automations/Reaaliaikainen%20lataus%20v1.1.txt):** Ohjaa fyysistä latauspistoketta sekunnilleen valitun suunnitelman mukaan.
+2.  **Sähköauto - [`Latauksen simulaatio (v1.2)`](automations/Latauksen%20simulaatio%20v1.2.txt):** Mahdollistaa lataussyklien ja raportoinnin testaamisen milloin tahansa turvallisesti simuloimalla.
+3.  **Lämmitin -[`Reaaliaikainen lataus (v2)`](automations/Reaaliaikainen%20lataus%20v1.1.txt):** Ohjaa lämmittimen etäpistorasiaa pörssihintojen mukaan.
+4.  **Lämmitin - [`Latauksen simulaatio (v2)`](automations/Latauksen%20simulaatio%20Lämmitin.txt):** Lämmitysjärjestelmän täydellinen testaussimulaattori.
 5.  **Nordpool Midnight Cleanup:** Aina taustalla oleva huoltotyökalu, joka siirtää keskiyöllä huomisen luonnokset kuluvan päivän aktiivisiksi ajoiksi.
 6.  **Nordpool: Automaattinen jaksojen haku hintojen julkaisusta:** Herää iltapäivällä (esim. klo 14:17) heti, kun huomisen pörssihinnat julkaistaan, ja laskee valmiit ehdotukset ruudukkoon oletusarvojen mukaan.
 7.  **Sähköauton Latausvahti (Turvaominaisuus):** Valvoo, että virta todella kulkee, kun pistoke on päällä. (ei ole tehty)
