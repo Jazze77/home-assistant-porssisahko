@@ -4,7 +4,8 @@ Täysin automaattinen, paikallinen ja erittäin tehokas energianoptimointijärje
 
 Järjestelmä kiertää Home Assistantin tekstimuuttujien tiukan 255 merkin rajoituksen käyttämällä kustomoitua **kaksoiskenttä- ja indeksiparituskoneistoa**.
 
-sähköauton lataus
+kuva sähköauton latauksesta
+Lataus alkaa klo 13:00 ja päättyy klo 17:59:59. Latauksen kestoksi on valittu 2h joten järjestelmä valitsee automaattisesti 8 halvinta 15 jaksoa. Käyttäjä on valinnut 3 jaksoa (jaksojen ympärillä näkyvät valkoiset kehykset) lisää joten latauksen kokonaiskestoksi tulee 11 jaksoa eli 2h 45 min.
 ![image alt](images/sahkoauto-lataus2.png)
 
 ## 📊 Keskeiset ominaisuudet
@@ -45,11 +46,10 @@ Tämä repositorio sisältää tuotantovalmiit koodit ja käyttöliittymäkonfig
 5. **Seuranta:** WiZ-etäpistorasiat (`sensor.sahkoauto_teho_laskettu` ja `_lammitin_teho_laskettu`) mittaavat tehoa livenä.
 6. **Raportointi:** Ajon päättyessä tekstipuskurit yhdistyvät, lokit puretaan, arkistot päivittyvät ja puhelimeen lähetetään push-ilmoitus.
 <details>
-   <summary>🔍 näytä push-ilmoitus</summary>
+   <summary>🔍 näytä ilmoitus</summary>
   <br>
-  <img src="/images/puhelin-lataus-valmis2.png" alt="Kuvaus" width="400">
+  <img src="/images/puhelin-lataus-valmis.png" alt="Kuvaus" width="400">
 </details>
-
 ---
 
 ## 🚀 Käyttöönotto puhtaaseen järjestelmään
@@ -57,12 +57,12 @@ Tämä repositorio sisältää tuotantovalmiit koodit ja käyttöliittymäkonfig
 Pystyttääksesi tämän pörssisähköjärjestelmän uuteen Home Assistant -ympäristöön, seuraa näitä vaiheita:
 
 ### Vaihe 1: Alusta järjestelmän helperit (muuttujat) 
-Säästääksesi aikaa käyttöliittymän klikkailussa, kopioi <a href="./configuration.yaml"><code>configuration.yaml</code></a> -tiedostosta löytyvä laaja helper-segmentti suoraan tuotantokoneesi `configuration.yaml` -tiedostoon. Tämä luo kaikki tarvittavat `input_text`, `input_number`, `input_datetime`, `input_boolean` ja `input_select` -muuttujat automaattisesti uudelleenkäynnistyksen yhteydessä.
+Säästääksesi aikaa käyttöliittymän klikkailussa, kopioi [`configuration.yaml`](./configuration.yaml) -tiedostosta löytyvä laaja helper-segmentti suoraan tuotantokoneesi `configuration.yaml` -tiedostoon. Tämä luo kaikki tarvittavat `input_text`, `input_number`, `input_datetime`, `input_boolean` ja `input_select` -muuttujat automaattisesti uudelleenkäynnistyksen yhteydessä.
 
 ### Vaihe 2: Yhdistä kooditiedostot
-1. Liitä sensorimääritykset omaan `configuration.yaml` -tiedostoosi.
-2. Liitä automaatiot omaan `automations.yaml` -tiedostoosi.
-3. Liitä laskenta- ja raporttiskriptit omaan `scripts.yaml` -tiedostoosi.
+1. Liitä sensorimääritykset omaan [`configuration.yaml`](./configuration.yaml) -tiedostoosi.
+2. Liitä automaatiot omaan [`automations.yaml`](./automations.yaml) -tiedostoosi.
+3. Liitä laskenta- ja raporttiskriptit omaan [`scripts.yaml`](./scripts.yaml) -tiedostoosi.
 4. Mene Home Assistantissa valikkoon **Kehitystyökalut > YAML** ja lataa kaikki komponentit uudelleen.
 
 ### Vaihe 3: Pystytä Dashboardit
@@ -84,7 +84,8 @@ HACS: (2.0.5)
 
 
 ### Vaihe 4: Rekisteröi kännykkäilmoitukset
-Varmistaaksesi push-ilmoitusten toiminnan, asenna virallinen **Home Assistant Companion App** puhelimeesi, yhdistä se palvelimeesi ja salli ilmoitukset sovelluksen asetuksista. Päivitä `notify.mobile_app_oman_laitteesi_nimi` -kohdat `scripts.yaml` -tiedostossa vastaamaan puhelimesi rekisteröityä nimeä.
+Varmistaaksesi push-ilmoitusten toiminnan, asenna virallinen **Home Assistant Companion App** puhelimeesi, yhdistä se palvelimeesi ja salli ilmoitukset sovelluksen asetuksista. Päivitä `notify.mobile_app_oman_laitteesi_nimi` -kohdat [`scripts.yaml`](./scripts.yaml). -tiedostossa vastaamaan puhelimesi rekisteröityä nimeä.
+
 
 ---
 
