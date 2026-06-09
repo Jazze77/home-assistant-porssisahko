@@ -4,6 +4,9 @@ Täysin automaattinen, paikallinen ja erittäin tehokas energianoptimointijärje
 
 Järjestelmä kiertää Home Assistantin tekstimuuttujien tiukan 255 merkin rajoituksen käyttämällä kustomoitua **kaksoiskenttä- ja indeksiparituskoneistoa**.
 
+sähköauton lataus
+![image alt](images/sahkoauto-lataus2.png)
+
 ## 📊 Keskeiset ominaisuudet
 *   **Dynaaminen 15 minuutin ajastus:** Hakemisto ja ajastus pohjautuvat tarkkoihin 15 minuutin pörssisähkön hintajaksoihin.
 *   **Automaattinen hintasynkronointi:** Noin klo `14:17` (tai heti, kun huomisen hinnat vahvistetaan), järjestelmä laskee tulevan yön optimaaliset latausikkunat automaattisesti käyttäjän oletusasetusten mukaan.
@@ -40,7 +43,12 @@ Tämä repositorio sisältää tuotantovalmiit koodit ja käyttöliittymäkonfig
 3. **Luonnos:** Valinnat piirtyvät dynaamisesti Dashboardin ruudukkoon luonnoslistaksi.
 4. **Lukitus:** Käyttäjä tallentaa valinnat tai automaatio lukitsee ne aktiiviseksi suoritusjonoksi.
 5. **Seuranta:** WiZ-etäpistorasiat (`sensor.sahkoauto_teho_laskettu` ja `_lammitin_teho_laskettu`) mittaavat tehoa livenä.
-6. **Raportointi:** Ajon päättyessä tekstipuskurit yhdistyvät, lokit puretaan, arkistot päivittyvät ja kännykkään lähetetään push-ilmoitus.
+6. **Raportointi:** Ajon päättyessä tekstipuskurit yhdistyvät, lokit puretaan, arkistot päivittyvät ja puhelimeen lähetetään push-ilmoitus.
+<details>
+   <summary>🔍 näytä push-ilmoitus</summary>
+  <br>
+  <img src="/images/puhelin-lataus-valmis2.png" alt="Kuvaus" width="400">
+</details>
 
 ---
 
@@ -48,8 +56,8 @@ Tämä repositorio sisältää tuotantovalmiit koodit ja käyttöliittymäkonfig
 
 Pystyttääksesi tämän pörssisähköjärjestelmän uuteen Home Assistant -ympäristöön, seuraa näitä vaiheita:
 
-### Vaihe 1: Alusta järjestelmän helperit (muuttujat)
-Säästääksesi aikaa käyttöliittymän klikkailussa, kopioi `configuration.yaml` -tiedostosta löytyvä laaja helper-segmentti suoraan tuotantokoneesi `configuration.yaml` -tiedostoon. Tämä luo kaikki tarvittavat `input_text`, `input_number`, `input_datetime`, `input_boolean` ja `input_select` -muuttujat automaattisesti uudelleenkäynnistyksen yhteydessä.
+### Vaihe 1: Alusta järjestelmän helperit (muuttujat) 
+Säästääksesi aikaa käyttöliittymän klikkailussa, kopioi <a href="./configuration.yaml"><code>configuration.yaml</code></a> -tiedostosta löytyvä laaja helper-segmentti suoraan tuotantokoneesi `configuration.yaml` -tiedostoon. Tämä luo kaikki tarvittavat `input_text`, `input_number`, `input_datetime`, `input_boolean` ja `input_select` -muuttujat automaattisesti uudelleenkäynnistyksen yhteydessä.
 
 ### Vaihe 2: Yhdistä kooditiedostot
 1. Liitä sensorimääritykset omaan `configuration.yaml` -tiedostoosi.
