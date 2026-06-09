@@ -1,14 +1,14 @@
 # 📈 Projektin kehityshistoria ja järjestelmäarkkitehtuuri
 
-Tämä dokumentti kuvaa pörssisähköjärjestelmän kehitysmatkan ensimmäisistä prototyypeistä nykyiseen, äärimmäisen optimoituun ja vakaaseen tuotantoversioon (v2.2).
+Tämä dokumentti kuvaa pörssisähköjärjestelmän kehitysmatkan ensimmäisistä prototyypeistä nykyiseen versioon (v2.2).
 
 ---
 
 ## 🗺️ Kehitysvaiheet kronologisesti
 
 ### Vaihe 1: Ensimmäiset askeleet (Älylampputestit)
-Projekti käynnistyi hyvin yksinkertaisella kokeilulla. Tavoitteena oli oppia Home Assistantin automaatioiden perusteet ja testata laitteiden reheaikaista ohjausta:
-*   **Ensimmäinen testi:** Luotiin automaatio, joka ohjasi älylamppua (on/off) tiettyjen kellonaikojen mukaan.
+Projekti käynnistyi hyvin yksinkertaisella kokeilulla. Tavoitteena oli oppia Home Assistantin automaatioiden perusteet ja testata laitteiden reaaliaikaista ohjausta:
+*   **Ensimmäinen testi:** Luotiin automaatio, joka ohjasi älylamppua (on/off) (päällä 1 min pois 1 min).
 *   **Väriohjaus:** Laajennettiin automaatiota muuttamaan älylampun väriä lennosta, millä testattiin monimutkaisempien komentojen ja datapakettien kulkua Zigbee/Wi-Fi-verkoissa.
 
 ### Vaihe 2: Nordpool-integraatio ja visuaalinen hintavahti
@@ -19,7 +19,7 @@ Kun perusohjaus toimi, järjestelmään kytkettiin **Nordpool-sensori** reaaliai
 ### Vaihe 3: Älypistokkeet ja ensimmäiset käyttöliittymät (The Grid)
 Visuaalisesta vahdista siirryttiin todelliseen kuormanohjaukseen, kun järjestelmään liitettiin ensimmäiset WiZ-älypistokkeet:
 *   **Käyttöliittymän synty:** Rakennettiin ensimmäiset Lovelace-dashboardit laitteiden ohjaukseen.
-*   **The Grid (Ruudukko):** Kehitettiin dynaaminen tuntiruudukko, josta käyttäjä pystyi itse klikkailemalla valitsemaan (Grid-valinnat), mitkä tunnit laitteet olivat päällä ja mitkä pois.
+*   **The Grid (Ruudukko):** Kehitettiin dynaaminen tuntiruudukko, josta käyttäjä pystyi itse klikkailemalla valitsemaan (Grid-valinnat), mitkä jaksot laitteet olivat päällä ja mitkä pois.
 
 ### Vaihe 4: Testauskaaos (61 automaatiota ja muistirajoitukset)
 Toiminnallisuuksien kasvaessa (kestoasetukset, optimaalisten jaksojen haut, simulaatiotilat, aikarajoitukset) järjestelmä monimutkaistui nopeasti. 
@@ -45,7 +45,7 @@ Nykyinen järjestelmä on täysin tuotantovarma, automaattinen ja dynaaminen kok
 4.  **Lämmitin - Latauksen simulaatio (v2):** Lämmitysjärjestelmän täydellinen testaussimulaattori.
 5.  **Nordpool Midnight Cleanup:** Aina taustalla oleva huoltotyökalu, joka siirtää keskiyöllä huomisen luonnokset kuluvan päivän aktiivisiksi ajoiksi.
 6.  **Nordpool: Automaattinen jaksojen haku hintojen julkaisusta:** Herää iltapäivällä (esim. klo 14:17) heti, kun huomisen pörssihinnat julkaistaan, ja laskee valmiit ehdotukset ruudukkoon oletusarvojen mukaan.
-7.  **Sähköauton Latausvahti (Turvaominaisuus):** Valvoo, että virta todella kulkee, kun pistoke on päällä.
+7.  **Sähköauton Latausvahti (Turvaominaisuus):** Valvoo, että virta todella kulkee, kun pistoke on päällä. (ei ole tehty)
 8.  **Järjestelmän käynnistysvahti:** Varmistaa sähkökatkon tai palvelimen uudelleenkäynnistyksen jälkeen, että käynnissä olleet lataussuunnitelmat jatkuvat automaattisesti oikeasta kohdasta.
 
 ---
