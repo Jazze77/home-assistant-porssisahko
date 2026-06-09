@@ -62,7 +62,18 @@ Säästääksesi aikaa käyttöliittymän klikkailussa, kopioi `configuration.ya
 2. Klikkaa oikeasta yläkulmasta kolmea pistettä -> **Muokkaa työpöytää** (Edit Dashboard).
 3. Klikkaa uudelleen kolmea pistettä -> **Raw-konfiguraatiomuokkain** (Raw Configuration Editor).
 4. Liitä vastaava raakateksti `dashboards/` -kansiosta löytyvistä tiedostoista.
-*Huom: Varmista, että olet asentanut HACS:n kautta kortit `custom:flex-table-card` ja `custom:button-card`.*
+*Huom: Varmista, että olet asentanut HACS:n kautta kortit
+HACS: (2.0.5)
+`Apexcharts-card` (version 2.2.3)
+`Auto-entities`(version 1.16.1)
+`Button-card`(version 7.0.1)
+`Config template card card` (version 1.3.6)
+`Flex-table` (version 1.4)
+`Layout-card` (version 2.4.7)
+`Mushroom` (version5.1.1)
+`Mushroom dashboard strategy` (version 3.1.0)
+`Nordpool` (hox.HACS versio (ei normaali)) (version 0.0.18)
+
 
 ### Vaihe 4: Rekisteröi kännykkäilmoitukset
 Varmistaaksesi push-ilmoitusten toiminnan, asenna virallinen **Home Assistant Companion App** puhelimeesi, yhdistä se palvelimeesi ja salli ilmoitukset sovelluksen asetuksista. Päivitä `notify.mobile_app_oman_laitteesi_nimi` -kohdat `scripts.yaml` -tiedostossa vastaamaan puhelimesi rekisteröityä nimeä.
