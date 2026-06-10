@@ -41,7 +41,7 @@ Wiz pistokkeiden avulla saatiin mitattua todellinen. Latausteho älylampuilla ol
 
 <details><summary>🔍 näytä lataus valmis raportti</summary><br><img src="images/lataus-valmis-1.png" alt="Kuvaus" width="400"></details>
 
-### Vaihe 5: Testauskaaos (61 automaatiota ja muistirajoitukset)
+### Vaihe 5: Testauskaaos (61 automaatiota ja muistirajoitukset) bugit
 Toiminnallisuuksien kasvaessa (kestoasetukset, optimaalisten jaksojen haut, simulaatiotilat, aikarajoitukset) järjestelmä monimutkaistui nopeasti. 
 *   Erilaisia kokeiluja, päällekkäisiä logiikoita ja testiautomaatioita kertyi lopulta huikeat **61 kappaletta**.
 *   Järjestelmä törmäsi Home Assistantin `input_text`-kenttien kiinteään **255 merkin rajoitukseen**, kun pitkien latausten tehojonoja yritettiin kirjoittaa yhteen muuttujaan. Pitkät lataukset katkesivat tai kaatuivat muistivirheisiin.
@@ -53,6 +53,7 @@ Havaittujen ongelmien jälkeen tehtiin radikaali päätös: koko järjestelmä p
 *   **61 automaatiota supistettiin tasan 8 automaatioon**, jotka hoitavat kaiken taustalogiikan äärimmäisen kevyesti ja nopeasti.
 *   Toteutettiin **`indeksi:teho` -paritus**, joka sitoo mitatun tehon kiinteästi jakson ID-numeroon, poistaen aikasirtymävirheet lopullisesti.
 *   Kehitettiin **kaksoiskenttäarkkitehtuuri (`_part2` + `*`)**, joka halkaisee teholokit lennosta kahteen osaan pituuden ylittäessä 245 merkkiä, murtaen 255 merkin rajoituksen pysyvästi.
+<details><summary>🔍 debug</summary><br><img src="images/tehot_luonnos_debug.png" alt="Kuvaus" width="500"></details>
 
 ### Vaihe 7: Latauksen historiatietojen tallennus ja säästölaskuri
 Arkkitehtuuri uudistusten jälkeen latauksen kokonaiskulutus ja hinta tallentui loppuraportteihin oikein. Kun lataus on valmis niin nyt siitä tallennettiin myös historiatiedot.
