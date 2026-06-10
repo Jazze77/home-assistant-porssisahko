@@ -19,32 +19,46 @@ Projektiin valittiin Philips Hue aloituspaketti, jossa on Philips silta ja 3 äl
 
 ### Vaihe 1: Ensimmäiset askeleet (Älylampputestit)
 Projekti käynnistyi hyvin yksinkertaisella kokeilulla. Tavoitteena oli oppia Home Assistantin automaatioiden perusteet ja testata laitteiden reaaliaikaista ohjausta:
-*   **Ensimmäinen testi:** Luotiin automaatio, joka ohjasi älylamppua (on/off) (päällä 1 min pois 1 min).
+*   **Ensimmäinen testi:** Luotiin automaatio, joka ohjasi älylamppua sekä älypistoketta (on/off) (päällä 1 min pois 1 min) .
 *   **Väriohjaus:** Laajennettiin automaatiota muuttamaan älylampun väriä lennosta, millä testattiin monimutkaisempien komentojen ja datapakettien kulkua Zigbee/Wi-Fi-verkoissa.
 <details><summary>🔍 verkko</summary><br><img src="images/alku-tilanne-0.png" alt="Kuvaus" width="700"></details>
 
 ### Vaihe 2: Nordpool-integraatio ja visuaalinen hintavahti
 Kun perusohjaus toimi, järjestelmään kytkettiin **Nordpool-sensori** reaaliaikaisten pörssisähköhintojen noutamiseksi:
-*   Luotiin automaatio, joka vertasi kuluvan tunnin hintaa vuorokauden keskihintaan.
-*   Älylamppu muutettiin visuaaliseksi hintavahdiksi kodin seinälle: lamppu paloi **vihreänä**, kun sähkö oli halpaa, ja muuttui **punaiseksi**, kun hinta nousi kalliiksi.
-<details><summary>🔍 nordpool</summary><br><img src="images/alku-nordpool.png" alt="Kuvaus" width="700"></details>
+*   Luotiin automaatio, joka vertasi kuluvan jakson hintaa vuorokauden min/max hintaan.
+*   Älylamppu muutettiin visuaaliseksi hintavahdiksi kodin seinälle: lamppu paloi **vihreänä**, kun sähkö oli halpaa, ja muuttui **keltaisen**, **oranssin** kautta **punaiseksi**, kun hinta nousi kalliiksi.
+<details><summary>🔍 nordpool</summary><br><img src="images/alku-nordpool.png" alt="Kuvaus" width="600"></details>
 
 ### Vaihe 3: Älypistokkeet ja ensimmäiset käyttöliittymät (The Grid)
 Visuaalisesta vahdista siirryttiin todelliseen kuormanohjaukseen, kun järjestelmään liitettiin ensimmäiset WiZ-älypistokkeet:
 *   **Käyttöliittymän synty:** Rakennettiin ensimmäiset Lovelace-dashboardit laitteiden ohjaukseen.
 *   **The Grid (Ruudukko):** Kehitettiin dynaaminen tuntiruudukko, josta käyttäjä pystyi itse klikkailemalla valitsemaan (Grid-valinnat), mitkä jaksot laitteet olivat päällä ja mitkä pois.
-<details><summary>🔍 Grid</summary><br><img src="images/eka-grid.png" alt="Kuvaus" width="700"></details>
+<details><summary>🔍 Grid</summary><br><img src="images/eka-grid.png" alt="Kuvaus" width="600"></details>
 
-### Vaihe 4: Testauskaaos (61 automaatiota ja muistirajoitukset)
+### Vaihe 4: Oletusasetukset ja Raportit
+Wiz pistokkeiden avulla saatiin mitattua todellinen. Latausteho älylampuilla oli lähellä 0W. Pistokkeille lisättiin oletusasetukset, josta voi lisätä latauskuormaa.
+<details><summary>🔍 oletusasetukset</summary><br><img src="images/oletus-asetukset.png" alt="Kuvaus" width="400"></details>
+
+<details><summary>🔍 näytä lataus valmis raportti</summary><br><img src="images/lataus-valmis-1.png" alt="Kuvaus" width="400"></details>
+
+### Vaihe 5: Testauskaaos (61 automaatiota ja muistirajoitukset)
 Toiminnallisuuksien kasvaessa (kestoasetukset, optimaalisten jaksojen haut, simulaatiotilat, aikarajoitukset) järjestelmä monimutkaistui nopeasti. 
 *   Erilaisia kokeiluja, päällekkäisiä logiikoita ja testiautomaatioita kertyi lopulta huikeat **61 kappaletta**.
 *   Järjestelmä törmäsi Home Assistantin `input_text`-kenttien kiinteään **255 merkin rajoitukseen**, kun pitkien latausten tehojonoja yritettiin kirjoittaa yhteen muuttujaan. Pitkät lataukset katkesivat tai kaatuivat muistivirheisiin.
+<details><summary>🔍 muistivirhe</summary><br><img src="images/muisti-vuoto.png" alt="Kuvaus" width="600"></details>
 
-### Vaihe 5: Järjestelmän täydellinen puhdistus ja arkkitehtuurin uudistus
+
+### Vaihe 6: Järjestelmän täydellinen puhdistus ja arkkitehtuurin uudistus
 Havaittujen ongelmien jälkeen tehtiin radikaali päätös: koko järjestelmä pystytettiin puhtaalta pöydältä **upouudelle Home Assistant -koneelle** ja koodi kirjoitettiin kokonaan uusiksi:
 *   **61 automaatiota supistettiin tasan 8 automaatioon**, jotka hoitavat kaiken taustalogiikan äärimmäisen kevyesti ja nopeasti.
 *   Toteutettiin **`indeksi:teho` -paritus**, joka sitoo mitatun tehon kiinteästi jakson ID-numeroon, poistaen aikasirtymävirheet lopullisesti.
 *   Kehitettiin **kaksoiskenttäarkkitehtuuri (`_part2` + `*`)**, joka halkaisee teholokit lennosta kahteen osaan pituuden ylittäessä 245 merkkiä, murtaen 255 merkin rajoituksen pysyvästi.
+
+### Vaihe 7: Latauksen historiatietojen tallennus ja säästölaskuri
+Arkkitehtuuri uudistusten jälkeen latauksen kokonaiskulutus ja hinta tallentui loppuraportteihin oikein. Kun lataus on valmis niin nyt siitä tallennettiin myös historiatiedot.
+<details><summary>🔍 Historiatiedot</summary><br><img src="images/historia-tiedot.png" alt="Kuvaus" width="400"></details>
+Live-kuukausisäästölaskuri: Visualisoi toteutuneet kumulatiiviset kuukausisäästöt (€) suoraan päädashboardilla verrattuna päivän keskihintaan
+<details><summary>🔍 Live-kuukausisäästölaskuri</summary><br><img src="images/säästöpossu1.png" alt="Kuvaus" width="400"></details>
 
 ---
 
