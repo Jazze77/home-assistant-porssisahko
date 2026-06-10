@@ -71,10 +71,10 @@ Nykyinen järjestelmä on täysin tuotantovarma, automaattinen ja dynaaminen kok
 2.  **Sähköauto - [`Latauksen simulaatio (v1.2)`](automations/Latauksen%20simulaatio%20v1.2.txt):** Mahdollistaa lataussyklien ja raportoinnin testaamisen milloin tahansa turvallisesti simuloimalla.
 3.  **Lämmitin -[`Reaaliaikainen lataus (v2)`](automations/Reaaliaikainen%20lataus%20v1.1.txt):** Ohjaa lämmittimen etäpistorasiaa pörssihintojen mukaan.
 4.  **Lämmitin - [`Latauksen simulaatio (v2)`](automations/Latauksen%20simulaatio%20Lämmitin.txt):** Lämmitysjärjestelmän täydellinen testaussimulaattori.
-5.  **Nordpool Midnight Cleanup:** Aina taustalla oleva huoltotyökalu, joka siirtää keskiyöllä huomisen luonnokset kuluvan päivän aktiivisiksi ajoiksi.
-6.  **Nordpool: Automaattinen jaksojen haku hintojen julkaisusta:** Herää iltapäivällä (esim. klo 14:17) heti, kun huomisen pörssihinnat julkaistaan, ja laskee valmiit ehdotukset ruudukkoon oletusarvojen mukaan.
+5.  **Nordpool [`Midnight Cleanup`](automations/Nordpool%20Midnight%20Cleanup%20v0.16%20AINA%20PÄÄLLÄ.txt)** Aina taustalla oleva huoltotyökalu, joka siirtää keskiyöllä huomisen luonnokset kuluvan päivän aktiivisiksi ajoiksi.
+6.  **Nordpool: [`Automaattinen jaksojen haku hintojen julkaisusta`](automations/Automaattinen%20jaksojen%20haku%20hintojen%20julkaisusta%20AINA%20PÄÄLLÄ.txt)** Herää iltapäivällä (esim. klo 14:17) heti, kun huomisen pörssihinnat julkaistaan, ja laskee valmiit ehdotukset ruudukkoon oletusarvojen mukaan.
 7.  **Sähköauton Latausvahti (Turvaominaisuus):** Valvoo, että virta todella kulkee, kun pistoke on päällä. (ei ole tehty)
-8.  **Järjestelmän käynnistysvahti:** Varmistaa sähkökatkon tai palvelimen uudelleenkäynnistyksen jälkeen, että käynnissä olleet lataussuunnitelmat jatkuvat automaattisesti oikeasta kohdasta.
+8.  **Järjestelmän [`käynnistysvahti:`](automations/Päivitä%20jaksot%20grip%20luonnos%20automaattisesti%20AINA%20PÄÄLLÄ.txt)** Varmistaa sähkökatkon tai palvelimen uudelleenkäynnistyksen jälkeen, että käynnissä olleet lataussuunnitelmat jatkuvat automaattisesti oikeasta kohdasta.
 
 ---
 
