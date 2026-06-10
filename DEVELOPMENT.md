@@ -75,75 +75,7 @@ Nykyinen järjestelmä on täysin tuotantovarma, automaattinen ja dynaaminen kok
 
 Alla oleva kaavio kuvaa, miten pörssisähködata haetaan internetistä ja miten kodin älylaitteet, sillat sekä palvelin on kytketty fyysisesti **Sagemcom-reitittimen** muodostamaan lähiverkkoon (LAN/WLAN).
 
-```mermaid
-graph TD
-    %% Internet ja ulkoiset palvelut
-    subgraph Internet [Pilvipalvelut & Ulkomaailma]
-        NP[Nordpool API / ENTSO-E]
-    end
-
-    %% Sagemcom Reititin keskiössä
-    subgraph Koti_LAN [Sagemcom Reititin & Lähiverkko]
-        R[Sagemcom Reititin]
-    end
-
-    %% Kaapelilla kytketyt laitteet (LAN)
-    subgraph Kaapelikytkennät [RJ45 Verkkokaapelit]
-        HA[Home Assistant Mini-PC]
-        HUE[Philips Hue Bridge]
-        PC[Oma Tietokone / Työasema]
-    end
-
-    %% Langattomat verkot (Wi-Fi & Zigbee)
-    subgraph Wi_Fi [2.4GHz / 5GHz Wi-Fi]
-        WIZ1[🚗 WiZ Älypistoke: Sähköauto]
-        WIZ2[⚡ WiZ Älypistoke: Lämmitin]
-    end
-
-    subgraph Zigbee_Mesh [Zigbee 3.0 Langaton Verkko]
-        ZD[Sonoff Zigbee 3.0 USB Dongle-E]
-        LM[🌡️ Sonoff SNZB-02LD Lämpömittari]
-        HUE_L[💡 Hue Älylamput]
-    end
-
-    %% Tiedonkulun yhteydet (Kytkennät)
-    NP -->|Internet-yhteys| R
-    
-    %% Fyysiset kaapelit reitittimestä
-    R ---|Verkkokaapeli| HA
-    R ---|Verkkokaapeli| HUE
-    R ---|Verkkokaapeli| PC
-    
-    %% Langattomat yhteydet reitittimestä
-    R -.->|Wi-Fi| WIZ1
-    R -.->|Wi-Fi| WIZ2
-
-    %% Home Assistantin omat paikalliset sillat
-    HA ---|USB-jatkojohto 2m| ZD
-    ZD -.->|Zigbee| LM
-    HUE -.->|Zigbee Hue Mesh| HUE_L
-
-    %% KORJATUT TYYLITTELYT (Parannettu kontrasti ja luettavuus)
-    style R fill:#333333,stroke:#555555,stroke-width:2px,color:#ffffff
-    style HA fill:#1f3d7a,stroke:#3b71ca,stroke-width:2px,color:#ffffff
-    style NP fill:#222222,stroke:#444444,stroke-width:1px,color:#ffffff
-    style WIZ1 fill:#2196F3,stroke:#1565C0,stroke-width:1px,color:#ffffff
-    style WIZ2 fill:#4CAF50,stroke:#2E7D32,stroke-width:1px,color:#ffffff
-```
-
 ### 📋 Verkkorakenteen tarkempi kuvaus
-
-1.  **Internet & Pörssisähkö (WAN):** Sagemcom-reititin hakee internet-yhteyden yli huomisen ja tämän päivän pörssisähköhinnat. Data on peräisin virallisesta **ENTSO-E** (*European Network of Transmission System Operators for Electricity*) -rajapinnasta. ENTSO-E on Euroopan kantaverkkohaltijoiden (kuten Suomen **Fingridin**) yhteistyöjärjestö, joka julkaisee viralliset ja standardoidut pörssihinnat koko Euroopan alueelle. Home Assistantin Nordpool-integraatio lukee tätä luotettavaa, suoraa tukkumarkkinadataa livenä vuorokauden ympäri.
-
-2.  **Sagemcom-reititin (LAN-keskiö):** Toimii kodin verkon sydämenä ja jakaa IP-osoitteet laitteille. Reitittimeen on kytketty kiinteästi **RJ45-verkkokaapeleilla** kolme kriittistä laitetta korkean vakauden ja olemattoman viiveen takaamiseksi:
-    *   **Home Assistant Server (Mini-PC):** Järjestelmän aivot, joka pyörittää automaatioita ja sensoreita.
-    *   **Philips Hue -silta (Bridge):** Ohjaa kodin älyvalaistusta omassa eristetyssä Zigbee-verkossaan.
-    *   **Oma tietokone:** Käytetään koodaukseen, järjestelmän hallintaan ja Dashboardien muokkaamiseen.
-
-3.  **Wi-Fi-laitteet (WLAN):** Sagemcom-reitittimen langattomaan 2.4 GHz Wi-Fi-verkkoon on kytketty molemmat suuren kuorman **WiZ-älypistokkeet** (Sähköauto ja Lämmitin). Home Assistant ohjaa näitä suoraan paikallisen Wi-Fi-lähiverkon yli ilman pilvipalveluita.
-
-4.  **Universaali Zigbee-lähiverkko (ZHA):** Home Assistant Mini-PC:hen on kytketty **2-metrisellä USB-jatkojohdolla** (RF-häiriöiden minimoimiseksi) **Sonoff Zigbee 3.0 USB Dongle Plus-E** -tikku. Tämä luo järjestelmän oman paikallisen Zigbee-verkon, johon **Sonoff SNZB-02LD -lämpömittari** liittyy suoraan ilman valmistajakohtaisia siltoja.
-
 ```mermaid
 graph TD
     %% Internet ja ulkoiset palvelut
@@ -199,3 +131,74 @@ graph TD
     style WIZ2 fill:#4CAF50,stroke:#2E7D32,stroke-width:1px,color:#ffffff
 ```
 
+
+1.  **Internet & Pörssisähkö (WAN):** Sagemcom-reititin hakee internet-yhteyden yli huomisen ja tämän päivän pörssisähköhinnat. Data on peräisin virallisesta **ENTSO-E** (*European Network of Transmission System Operators for Electricity*) -rajapinnasta. ENTSO-E on Euroopan kantaverkkohaltijoiden (kuten Suomen **Fingridin**) yhteistyöjärjestö, joka julkaisee viralliset ja standardoidut pörssihinnat koko Euroopan alueelle. Home Assistantin Nordpool-integraatio lukee tätä luotettavaa, suoraa tukkumarkkinadataa livenä vuorokauden ympäri.
+
+2.  **Sagemcom-reititin (LAN-keskiö):** Toimii kodin verkon sydämenä ja jakaa IP-osoitteet laitteille. Reitittimeen on kytketty kiinteästi **RJ45-verkkokaapeleilla** kolme kriittistä laitetta korkean vakauden ja olemattoman viiveen takaamiseksi:
+    *   **Home Assistant Server (Mini-PC):** Järjestelmän aivot, joka pyörittää automaatioita ja sensoreita.
+    *   **Philips Hue -silta (Bridge):** Ohjaa kodin älyvalaistusta omassa eristetyssä Zigbee-verkossaan.
+    *   **Oma tietokone:** Käytetään koodaukseen, järjestelmän hallintaan ja Dashboardien muokkaamiseen.
+
+3.  **Wi-Fi-laitteet (WLAN):** Sagemcom-reitittimen langattomaan 2.4 GHz Wi-Fi-verkkoon on kytketty molemmat suuren kuorman **WiZ-älypistokkeet** (Sähköauto ja Lämmitin). Home Assistant ohjaa näitä suoraan paikallisen Wi-Fi-lähiverkon yli ilman pilvipalveluita.
+
+4.  **Universaali Zigbee-lähiverkko (ZHA):** Home Assistant Mini-PC:hen on kytketty **2-metrisellä USB-jatkojohdolla** (RF-häiriöiden minimoimiseksi) **Sonoff Zigbee 3.0 USB Dongle Plus-E** -tikku. Tämä luo järjestelmän oman paikallisen Zigbee-verkon, johon **Sonoff SNZB-02LD -lämpömittari** liittyy suoraan ilman valmistajakohtaisia siltoja.
+
+
+### 📋 jatkosuunnitelma
+
+
+```mermaid
+graph TD
+    %% Internet ja ulkoiset palvelut
+    subgraph Internet [Pilvipalvelut & Ulkomaailma]
+        NP[Nordpool API / ENTSO-E]
+    end
+
+    %% Sagemcom Reititin keskiössä
+    subgraph Koti_LAN [Sagemcom Reititin & Lähiverkko]
+        R[Sagemcom Reititin]
+    end
+
+    %% Kaapelilla kytketyt laitteet (LAN)
+    subgraph Kaapelikytkennät [RJ45 Verkkokaapelit]
+        HA[Home Assistant Mini-PC]
+        HUE[Philips Hue Bridge]
+        PC[Oma Tietokone / Työasema]
+    end
+
+    %% Langattomat verkot (Wi-Fi & Zigbee)
+    subgraph Wi_Fi [2.4GHz / 5GHz Wi-Fi]
+        WIZ1[🚗 WiZ Älypistoke: Sähköauto]
+        WIZ2[⚡ WiZ Älypistoke: Lämmitin]
+    end
+
+    subgraph Zigbee_Mesh [Zigbee 3.0 Langaton Verkko]
+        ZD[Sonoff Zigbee 3.0 USB Dongle-E]
+        LM[🌡️ Sonoff SNZB-02LD Lämpömittari]
+        HUE_L[💡 Hue Älylamput]
+    end
+
+    %% Tiedonkulun yhteydet (Kytkennät)
+    NP -->|Internet-yhteys| R
+    
+    %% Fyysiset kaapelit reitittimestä
+    R ---|Verkkokaapeli| HA
+    R ---|Verkkokaapeli| HUE
+    R ---|Verkkokaapeli| PC
+    
+    %% Langattomat yhteydet reitittimestä
+    R -.->|Wi-Fi| WIZ1
+    R -.->|Wi-Fi| WIZ2
+
+    %% Home Assistantin omat paikalliset sillat
+    HA ---|USB-jatkojohto 2m| ZD
+    ZD -.->|Zigbee| LM
+    HUE -.->|Zigbee Hue Mesh| HUE_L
+
+    %% KORJATUT TYYLITTELYT (Parannettu kontrasti ja luettavuus)
+    style R fill:#333333,stroke:#555555,stroke-width:2px,color:#ffffff
+    style HA fill:#1f3d7a,stroke:#3b71ca,stroke-width:2px,color:#ffffff
+    style NP fill:#222222,stroke:#444444,stroke-width:1px,color:#ffffff
+    style WIZ1 fill:#2196F3,stroke:#1565C0,stroke-width:1px,color:#ffffff
+    style WIZ2 fill:#4CAF50,stroke:#2E7D32,stroke-width:1px,color:#ffffff
+```
