@@ -130,3 +130,58 @@ graph TD
 
 4.  **Universaali Zigbee-lähiverkko (ZHA):** Home Assistant Mini-PC:hen on kytketty **2-metrisellä USB-jatkojohdolla** (RF-häiriöiden minimoimiseksi) **Sonoff Zigbee 3.0 USB Dongle Plus-E** -tikku. Tämä luo järjestelmän oman paikallisen Zigbee-verkon, johon **Sonoff SNZB-02LD -lämpömittari** liittyy suoraan ilman valmistajakohtaisia siltoja.
 
+```mermaid
+graph TD
+    %% Internet ja ulkoiset palvelut
+    subgraph Internet [Pilvipalvelut & Ulkomaailma]
+        NP[Nordpool API / ENTSO-E]
+    end
+
+    %% Sagemcom Reititin keskiössä
+    subgraph Koti_LAN [Sagemcom Reititin & Lähiverkko]
+        R[Reititin]
+    end
+
+    %% Kaapelilla kytketyt laitteet (LAN)
+    subgraph Kaapelikytkennät [RJ45 Verkkokaapelit]
+        HA[Home Assistant Mini-PC]
+        HUE[Philips Hue Bridge]
+        PC[Oma Tietokone / Työasema]
+    end
+
+    %% Langattomat verkot (Wi-Fi & Zigbee)
+    subgraph Wi_Fi [2.4GHz / 5GHz Wi-Fi]
+        WIZ1[🚗 WiZ Älypistoke: Sähköauto]
+        WIZ2[⚡ WiZ Älypistoke: Lämmitin]
+    end
+
+    subgraph Zigbee_Mesh [Zigbee 3.0 Langaton Verkko]
+        HUE_L[💡 Hue Älylamput]
+        HUE_P[🔌 Hue ÄlyPistokkeet]
+
+    end
+
+    %% Tiedonkulun yhteydet (Kytkennät)
+    NP -->|Internet-yhteys| R
+    
+    %% Fyysiset kaapelit reitittimestä
+    R ---|Verkkokaapeli| HA
+    R ---|Verkkokaapeli| HUE
+    R ---|Verkkokaapeli| PC
+    
+    %% Langattomat yhteydet reitittimestä
+    R -.->|Wi-Fi| WIZ1
+    R -.->|Wi-Fi| WIZ2
+
+    %% Home Assistantin omat paikalliset sillat
+    HUE -.->|Zigbee Hue Mesh| HUE_L
+    HUE -.->|Zigbee Hue Mesh| HUE_P
+
+    %% KORJATUT TYYLITTELYT (Parannettu kontrasti ja luettavuus)
+    style R fill:#333333,stroke:#555555,stroke-width:2px,color:#ffffff
+    style HA fill:#1f3d7a,stroke:#3b71ca,stroke-width:2px,color:#ffffff
+    style NP fill:#222222,stroke:#444444,stroke-width:1px,color:#ffffff
+    style WIZ1 fill:#2196F3,stroke:#1565C0,stroke-width:1px,color:#ffffff
+    style WIZ2 fill:#4CAF50,stroke:#2E7D32,stroke-width:1px,color:#ffffff
+```
+
