@@ -24,7 +24,6 @@ Lataus alkaa klo 13:00 ja päättyy klo 17:59:59. Latauksen kestoksi on valittu 
 *   **Dynaaminen 15 minuutin ajastus:** Hakemisto ja ajastus pohjautuvat tarkkoihin 15 minuutin pörssisähkön hintajaksoihin.
 *   **Automaattinen hintasynkronointi:** Noin klo `14:17` (tai heti, kun huomisen hinnat vahvistetaan), <details><summary>🔍 näytä raportti</summary><br><img src="images/uudet_pörssisähkö_hinnat.png" alt="Kuvaus" width="400"></details> järjestelmä laskee tulevan yön optimaaliset latausikkunat automaattisesti käyttäjän oletusasetusten mukaan.
 *   **Keskiyön huoltoautomaatio (Midnight Cleanup):** Siirtää huomisen luonnosjaksot automaattisesti kuluvan päivän aktiivisiksi ajoiksi täsmälleen klo `00:00:00`.
-*   **Kaksoiskenttämuisti (`_part2` + `*`):** Kiertää Home Assistantin tilatietojen 255 merkin rajan jakamalla teholokit lennosta kahteen eri tekstikenttään kustomoidun katkomerkin avulla.
 *   **Live-kuukausisäästölaskuri:** Visualisoi toteutuneet kumulatiiviset kuukausisäästöt (€) suoraan päädashboardilla verrattuna päivän keskihintaan.<details><summary>🔍 näytä säästöt</summary><br><img src="images/säästöpossu1.png" alt="Kuvaus" width="400"></details> 
 *   **Reaaliaikaiset push-ilmoitukset:** Lähettää korkean prioriteetin raportin ja tarkan kulutusyhteenvedon (`kWh` ja `€`) suoraan käyttäjän älypuhelimeen heti lataussyklin valmistuttua.
 
@@ -81,17 +80,18 @@ Säästääksesi aikaa käyttöliittymän klikkailussa, kopioi [`configuration.y
 2. Klikkaa oikeasta yläkulmasta kolmea pistettä -> **Muokkaa työpöytää** (Edit Dashboard).
 3. Klikkaa uudelleen kolmea pistettä -> **Raw-konfiguraatiomuokkain** (Raw Configuration Editor).
 4. Liitä vastaava raakateksti `dashboards/` -kansiosta löytyvistä tiedostoista.
+
 *Huom: Varmista, että olet asentanut HACS:n kautta kortit
 HACS: (2.0.5)
-`Apexcharts-card` (version 2.2.3)
-`Auto-entities`(version 1.16.1)
-`Button-card`(version 7.0.1)
-`Config template card card` (version 1.3.6)
-`Flex-table` (version 1.4)
-`Layout-card` (version 2.4.7)
-`Mushroom` (version5.1.1)
-`Mushroom dashboard strategy` (version 3.1.0)
-`Nordpool` (hox.HACS versio (ei normaali)) (version 0.0.18)
+- `Apexcharts-card` (version 2.2.3)
+- `Auto-entities`(version 1.16.1)
+- `Button-card`(version 7.0.1)
+- `Config template card card` (version 1.3.6)
+- `Flex-table` (version 1.4)
+- `Layout-card` (version 2.4.7)
+- `Mushroom` (version5.1.1)
+- `Mushroom dashboard strategy` (version 3.1.0)
+- `Nordpool` (hox.HACS versio (ei normaali)) (version 0.0.18)
 
 
 ### Vaihe 4: Rekisteröi kännykkäilmoitukset
