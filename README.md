@@ -6,11 +6,24 @@ Järjestelmä kiertää Home Assistantin tekstimuuttujien tiukan 255 merkin rajo
 
 kuva sähköauton latauksesta
 Lataus alkaa klo 13:00 ja päättyy klo 17:59:59. Latauksen kestoksi on valittu 2h joten järjestelmä valitsee automaattisesti 8 halvinta 15 jaksoa. Käyttäjä on valinnut 3 jaksoa (jaksojen ympärillä näkyvät valkoiset kehykset) lisää joten latauksen kokonaiskestoksi tulee 11 jaksoa eli 2h 45 min.
+<details>
+   <summary>🔍 näytä ohjaustiedot</summary>
+  <br>
+  <img src="images/ohjaus-tallennettu-1.png" alt="Kuvaus" width="400">    
+</details>
+
 ![image alt](images/sahkoauto-lataus2.png)
+
+
+<details>
+   <summary>🔍 näytä lataus valmis raportti</summary>
+  <br>
+  <img src="images/lataus-valmis-1.png" alt="Kuvaus" width="400">    
+</details>
 
 ## 📊 Keskeiset ominaisuudet
 *   **Dynaaminen 15 minuutin ajastus:** Hakemisto ja ajastus pohjautuvat tarkkoihin 15 minuutin pörssisähkön hintajaksoihin.
-*   **Automaattinen hintasynkronointi:** Noin klo `14:17` (tai heti, kun huomisen hinnat vahvistetaan), järjestelmä laskee tulevan yön optimaaliset latausikkunat automaattisesti käyttäjän oletusasetusten mukaan.
+*   **Automaattinen hintasynkronointi:** Noin klo `14:17` (tai heti, kun huomisen hinnat vahvistetaan), <details><summary>🔍 näytä raportti</summary><br><img src="images/uudet_pörssisähkö_hinnat.png" alt="Kuvaus" width="400"></details> järjestelmä laskee tulevan yön optimaaliset latausikkunat automaattisesti käyttäjän oletusasetusten mukaan.
 *   **Keskiyön huoltoautomaatio (Midnight Cleanup):** Siirtää huomisen luonnosjaksot automaattisesti kuluvan päivän aktiivisiksi ajoiksi täsmälleen klo `00:00:00`.
 *   **Kaksoiskenttämuisti (`_part2` + `*`):** Kiertää Home Assistantin tilatietojen 255 merkin rajan jakamalla teholokit lennosta kahteen eri tekstikenttään kustomoidun katkomerkin avulla.
 *   **Indeksiparitus (`idx:teho`):** Estää listojen siirtymävirheet, jos automaatio käynnistetään kesken varttitunnin jakson, sitomalla tehomittaukset kiinteästi jaksojen ID-numeroihin.
