@@ -2,24 +2,38 @@
 
 Tämä dokumentti kuvaa pörssisähköjärjestelmän kehitysmatkan ensimmäisistä prototyypeistä nykyiseen versioon (v2.2).
 
+
 ---
 
 ## 🗺️ Kehitysvaiheet kronologisesti
+
+Alkutilanne
+Projektissa rakennetaan paikallinen älykoti järjestelmä hyödyntämällä Home Assistant -alustaa ja kierrätettyä PC-laitteistoa.
+
+[`Home assistant järjestelmän asentaminen`](documents/Home%20assist%20asentaminen.docx)
+
+komponettienvalinta
+Projektiin valittiin Philips Hue aloituspaketti, jossa on Philips silta ja 3 älylamppua. Lisäksi hankittiin 2 Philips älypistoketta.
+<details><summary>🔍 komponentit</summary><br><img src="images/alku-mini-ja-phillips.png" alt="Kuvaus" width="400"></details>
+
 
 ### Vaihe 1: Ensimmäiset askeleet (Älylampputestit)
 Projekti käynnistyi hyvin yksinkertaisella kokeilulla. Tavoitteena oli oppia Home Assistantin automaatioiden perusteet ja testata laitteiden reaaliaikaista ohjausta:
 *   **Ensimmäinen testi:** Luotiin automaatio, joka ohjasi älylamppua (on/off) (päällä 1 min pois 1 min).
 *   **Väriohjaus:** Laajennettiin automaatiota muuttamaan älylampun väriä lennosta, millä testattiin monimutkaisempien komentojen ja datapakettien kulkua Zigbee/Wi-Fi-verkoissa.
+<details><summary>🔍 verkko</summary><br><img src="images/alku-tilanne-0.png" alt="Kuvaus" width="700"></details>
 
 ### Vaihe 2: Nordpool-integraatio ja visuaalinen hintavahti
 Kun perusohjaus toimi, järjestelmään kytkettiin **Nordpool-sensori** reaaliaikaisten pörssisähköhintojen noutamiseksi:
 *   Luotiin automaatio, joka vertasi kuluvan tunnin hintaa vuorokauden keskihintaan.
 *   Älylamppu muutettiin visuaaliseksi hintavahdiksi kodin seinälle: lamppu paloi **vihreänä**, kun sähkö oli halpaa, ja muuttui **punaiseksi**, kun hinta nousi kalliiksi.
+<details><summary>🔍 nordpool</summary><br><img src="images/alku-nordpool.png" alt="Kuvaus" width="700"></details>
 
 ### Vaihe 3: Älypistokkeet ja ensimmäiset käyttöliittymät (The Grid)
 Visuaalisesta vahdista siirryttiin todelliseen kuormanohjaukseen, kun järjestelmään liitettiin ensimmäiset WiZ-älypistokkeet:
 *   **Käyttöliittymän synty:** Rakennettiin ensimmäiset Lovelace-dashboardit laitteiden ohjaukseen.
 *   **The Grid (Ruudukko):** Kehitettiin dynaaminen tuntiruudukko, josta käyttäjä pystyi itse klikkailemalla valitsemaan (Grid-valinnat), mitkä jaksot laitteet olivat päällä ja mitkä pois.
+<details><summary>🔍 Grid</summary><br><img src="images/eka-grid.png" alt="Kuvaus" width="700"></details>
 
 ### Vaihe 4: Testauskaaos (61 automaatiota ja muistirajoitukset)
 Toiminnallisuuksien kasvaessa (kestoasetukset, optimaalisten jaksojen haut, simulaatiotilat, aikarajoitukset) järjestelmä monimutkaistui nopeasti. 
