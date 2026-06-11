@@ -8,11 +8,16 @@ Tämä dokumentti kuvaa pörssisähköjärjestelmän kehitysmatkan ensimmäisist
 ## 🗺️ Kehitysvaiheet kronologisesti
 
 Alkutilanne
-Projektissa rakennetaan paikallinen älykoti järjestelmä hyödyntämällä Home Assistant -alustaa ja kierrätettyä PC-laitteistoa.
+Projektissa rakennetaan paikallinen älykoti järjestelmä hyödyntämällä Home Assistant -alustaa ja kierrätettyä PC-laitteistoa/ Mini-PC.
+Buuttava USB-tikku, jonka avulla asennetaan Home Assistant.
 
-[`Home assistant järjestelmän asentaminen`](documents/Home%20assist%20asentaminen.docx)
+[`Home assistant järjestelmän asentaminen`](documents/Home%20assist%20asentaminen.pdf)
 
-komponettienvalinta
+HACS ( Home Assistant Community Store)
+
+[`HACS ja tarvittavat HACS lisäosat`](documents/Home%20assist%20HACS%20jälkeen.pdf)
+
+### Komponettien valinta
 Projektiin valittiin Philips Hue aloituspaketti, jossa on Philips silta ja 3 älylamppua. Lisäksi hankittiin 2 Philips älypistoketta.
 <details><summary>🔍 komponentit</summary><br><img src="images/alku-mini-ja-phillips.png" alt="Kuvaus" width="400"></details>
 
@@ -41,12 +46,11 @@ Wiz pistokkeiden avulla saatiin mitattua todellinen. Latausteho älylampuilla ol
 
 <details><summary>🔍 näytä lataus valmis raportti</summary><br><img src="images/lataus-valmis-1.png" alt="Kuvaus" width="400"></details>
 
-### Vaihe 5: Testauskaaos (61 automaatiota ja muistirajoitukset) bugit
+### Vaihe 5: Testauskaaos. Virheiden korjausta Home Assistant ympäristössä. (61 automaatiota,muistirajoitukset, bugit ...)
 Toiminnallisuuksien kasvaessa (kestoasetukset, optimaalisten jaksojen haut, simulaatiotilat, aikarajoitukset) järjestelmä monimutkaistui nopeasti. 
 *   Erilaisia kokeiluja, päällekkäisiä logiikoita ja testiautomaatioita kertyi lopulta huikeat **61 kappaletta**.
 *   Järjestelmä törmäsi Home Assistantin `input_text`-kenttien kiinteään **255 merkin rajoitukseen**, kun pitkien latausten tehojonoja yritettiin kirjoittaa yhteen muuttujaan. Pitkät lataukset katkesivat tai kaatuivat muistivirheisiin.
 <details><summary>🔍 muistivirhe</summary><br><img src="images/muisti-vuoto.png" alt="Kuvaus" width="600"></details>
-
 
 ### Vaihe 6: Järjestelmän täydellinen puhdistus ja arkkitehtuurin uudistus
 Havaittujen ongelmien jälkeen tehtiin radikaali päätös: koko järjestelmä pystytettiin puhtaalta pöydältä **upouudelle Home Assistant -koneelle** ja koodi kirjoitettiin kokonaan uusiksi:
